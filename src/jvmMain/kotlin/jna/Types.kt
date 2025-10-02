@@ -31,7 +31,6 @@ val HANDLE_SIZE = if (Platform.isWindows()) { Native.POINTER_SIZE } else { DWORD
 internal open class KIntegerType(size: Int, value: Long = 0, unsigned: Boolean = true) : IntegerType(size, value, unsigned) {
     // This is needed to fill in the gaps of IntegerType's implementation of Number for Kotlin.
     override fun toByte() = toInt().toByte()
-    override fun toChar() = toInt().toChar()
     override fun toShort() = toInt().toShort()
 }
 
