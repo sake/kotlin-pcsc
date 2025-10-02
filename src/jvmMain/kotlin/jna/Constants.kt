@@ -24,11 +24,12 @@ private const val LIB_WIN32 = "WinSCard.dll"
 private const val LIB_MACOS = "/System/Library/Frameworks/PCSC.framework/PCSC"
 private const val LIB_NIX = "libpcsclite.so.1"
 
-internal val LIB_NAME = when {
-    Platform.isWindows() -> LIB_WIN32
-    Platform.isMac() -> LIB_MACOS
-    else -> LIB_NIX
-}
+internal val LIB_NAME =
+    when {
+        Platform.isWindows() -> LIB_WIN32
+        Platform.isMac() -> LIB_MACOS
+        else -> LIB_NIX
+    }
 
 internal const val MAX_BUFFER_SIZE = 264
 

@@ -18,12 +18,10 @@
  */
 package au.id.micolous.kotlin.pcsc.jna
 
-import au.id.micolous.kotlin.pcsc.toMultiString
+import au.id.micolous.kotlin.pcsc.internal.toMultiString
 import java.nio.ByteBuffer
 
-internal fun ByteBuffer.getMultiString(length: Int): Sequence<String> {
-    return getByteArray(length).toMultiString()
-}
+internal fun ByteBuffer.getMultiString(length: Int): Sequence<String> = getByteArray(length).toMultiString()
 
 internal fun ByteBuffer.getByteArray(length: Int): ByteArray {
     val out = ByteArray(length)
@@ -43,4 +41,5 @@ internal fun maybeAlloc(length: Int): ByteBuffer? {
 }
 
 internal fun maybeAlloc(length: Dword) = maybeAlloc(length.toInt())
+
 internal fun maybeAlloc(length: DwordByReference) = maybeAlloc(length.value.toInt())

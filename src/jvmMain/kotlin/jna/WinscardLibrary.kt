@@ -22,37 +22,98 @@ import com.sun.jna.Library
 import com.sun.jna.Pointer
 import java.nio.ByteBuffer
 
-
 @Suppress("FunctionName")
-internal interface WinscardLibrary: Library {
-    fun SCardEstablishContext(dwScope: Dword, pvReserved1: Pointer?, pvReserved2: Pointer?,
-                              phContext: SCardContextByReference): SCardResult
+internal interface WinscardLibrary : Library {
+    fun SCardEstablishContext(
+        dwScope: Dword,
+        pvReserved1: Pointer?,
+        pvReserved2: Pointer?,
+        phContext: SCardContextByReference,
+    ): SCardResult
+
     fun SCardReleaseContext(hContext: SCardContext): SCardResult
+
     fun SCardIsValidContext(hContext: SCardContext): SCardResult
-    fun SCardListReaders(hContext: SCardContext, mszGroups: ByteArray?, mszReaders: ByteBuffer?,
-                         pcchReaders: DwordByReference): SCardResult
-    fun SCardConnect(hContext: SCardContext, szReader: String, dwShareMode: Dword,
-                     dwPreferredProtocols: Dword, phCard: SCardHandleByReference,
-                     pdwActiveProtocol: DwordByReference): SCardResult
-    fun SCardReconnect(hCard: SCardHandle, dwShareMode: Dword, dwPreferredProtocols: Dword,
-                       dwInitialization: Dword, pdwActiveProtocol: DwordByReference): SCardResult
-    fun SCardDisconnect(hCard: SCardHandle, dwDisposition: Dword): SCardResult
-    fun SCardTransmit(hCard: SCardHandle, pioSendPci: SCardIoRequest, pbSendBuffer: ByteArray,
-                      cbSendLength: Dword, pioRecvPci: SCardIoRequest?, pbRecvBuffer: ByteBuffer,
-                      pcbRecvLength: DwordByReference): SCardResult
+
+    fun SCardListReaders(
+        hContext: SCardContext,
+        mszGroups: ByteArray?,
+        mszReaders: ByteBuffer?,
+        pcchReaders: DwordByReference,
+    ): SCardResult
+
+    fun SCardConnect(
+        hContext: SCardContext,
+        szReader: String,
+        dwShareMode: Dword,
+        dwPreferredProtocols: Dword,
+        phCard: SCardHandleByReference,
+        pdwActiveProtocol: DwordByReference,
+    ): SCardResult
+
+    fun SCardReconnect(
+        hCard: SCardHandle,
+        dwShareMode: Dword,
+        dwPreferredProtocols: Dword,
+        dwInitialization: Dword,
+        pdwActiveProtocol: DwordByReference,
+    ): SCardResult
+
+    fun SCardDisconnect(
+        hCard: SCardHandle,
+        dwDisposition: Dword,
+    ): SCardResult
+
+    fun SCardTransmit(
+        hCard: SCardHandle,
+        pioSendPci: SCardIoRequest,
+        pbSendBuffer: ByteArray,
+        cbSendLength: Dword,
+        pioRecvPci: SCardIoRequest?,
+        pbRecvBuffer: ByteBuffer,
+        pcbRecvLength: DwordByReference,
+    ): SCardResult
+
     fun SCardBeginTransaction(hCard: SCardHandle): SCardResult
-    fun SCardEndTransaction(hCard: SCardHandle, dwDisposition: Dword): SCardResult
+
+    fun SCardEndTransaction(
+        hCard: SCardHandle,
+        dwDisposition: Dword,
+    ): SCardResult
+
     fun SCardCancel(hContext: SCardContext): SCardResult
-    fun SCardStatus(hCard: SCardHandle, mszReaderName: ByteBuffer?,
-                    pcchReaderLen: DwordByReference, pdwState: DwordByReference?,
-                    pdwProtocol: DwordByReference?, pbAtr: ByteBuffer?,
-                    pcbAtrLen: DwordByReference) : SCardResult
-    fun SCardControl(hCard: SCardHandle, dwControlCode: Dword, pbSendBuffer: ByteArray?,
-                     cbSendLength: Dword, pbRecvBuffer: ByteBuffer?, cbRecvLength: Dword,
-                     lpBytesReturned: DwordByReference) : SCardResult
-    fun SCardGetAttrib(hCard: SCardHandle, dwAttrId: Dword, pbAttr: ByteBuffer?,
-                       pcbAttrLen: DwordByReference) : SCardResult
-    fun SCardGetStatusChange(hContext: SCardContext, dwTimeout: Dword,
-                             rgReaderStates: Array<SCardReaderState>,
-                             cReaders: Dword) : SCardResult
+
+    fun SCardStatus(
+        hCard: SCardHandle,
+        mszReaderName: ByteBuffer?,
+        pcchReaderLen: DwordByReference,
+        pdwState: DwordByReference?,
+        pdwProtocol: DwordByReference?,
+        pbAtr: ByteBuffer?,
+        pcbAtrLen: DwordByReference,
+    ): SCardResult
+
+    fun SCardControl(
+        hCard: SCardHandle,
+        dwControlCode: Dword,
+        pbSendBuffer: ByteArray?,
+        cbSendLength: Dword,
+        pbRecvBuffer: ByteBuffer?,
+        cbRecvLength: Dword,
+        lpBytesReturned: DwordByReference,
+    ): SCardResult
+
+    fun SCardGetAttrib(
+        hCard: SCardHandle,
+        dwAttrId: Dword,
+        pbAttr: ByteBuffer?,
+        pcbAttrLen: DwordByReference,
+    ): SCardResult
+
+    fun SCardGetStatusChange(
+        hContext: SCardContext,
+        dwTimeout: Dword,
+        rgReaderStates: Array<SCardReaderState>,
+        cReaders: Dword,
+    ): SCardResult
 }

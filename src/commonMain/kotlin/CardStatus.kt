@@ -40,7 +40,6 @@ class CardStatus internal constructor(
      * Name(s) of the reader. On Windows, this may be multiple names.
      */
     val readerNames: List<String> = emptyList(),
-
     /**
      * If true, the reader / card is in an unknown state.
      */
@@ -73,7 +72,6 @@ class CardStatus internal constructor(
      * If true, the card has been reset and specific communication protocols have been established.
      */
     val specific: Boolean = false,
-
     /**
      * The current protocol, if any.
      *
@@ -83,7 +81,7 @@ class CardStatus internal constructor(
     /**
      * The ATR (Answer To Reset) returned by the card, if available.
      */
-    val atr: ByteArray = ByteArray(0)
+    val atr: ByteArray = ByteArray(0),
 ) {
     /**
      * Name of the reader.

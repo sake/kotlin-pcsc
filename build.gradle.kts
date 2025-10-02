@@ -6,7 +6,6 @@ plugins {
     id("maven-publish")
 }
 
-
 private fun KotlinNativeTarget.withCinterop() {
     compilations.getByName("main") {
         cinterops {
@@ -21,7 +20,7 @@ kotlin {
     jvm()
 
     val hostOs = System.getProperty("os.name")
-    //val isArm64 = System.getProperty("os.arch") == "aarch64"
+    // val isArm64 = System.getProperty("os.arch") == "aarch64"
     when {
         hostOs == "Mac OS X" -> {
             macosArm64 {
@@ -42,14 +41,13 @@ kotlin {
         }
 
         hostOs.startsWith("Windows") -> {
-            mingwX64() {
+            mingwX64 {
                 withCinterop()
             }
         }
 
         else -> throw GradleException("Host OS is not supported in Kotlin/Native.")
     }
-
 
     sourceSets {
         commonMain.dependencies {
@@ -67,7 +65,7 @@ kotlin {
     }
 
     sourceSets.all {
-        //languageSettings.optIn("kotlin.ExperimentalStdlibApi")
+        // languageSettings.optIn("kotlin.ExperimentalStdlibApi")
         languageSettings.optIn("kotlinx.cinterop.ExperimentalForeignApi")
         languageSettings.optIn("kotlin.experimental.ExperimentalNativeApi")
     }
@@ -82,7 +80,6 @@ tasks.withType<Test> {
     useJUnitPlatform { }
 }
 
-
 publishing {
 //    publications {
 //    }
@@ -91,12 +88,12 @@ publishing {
 dokka {
     dokkaSourceSets {
         commonMain {
-            //includeNonPublic.set(false)
+            // includeNonPublic.set(false)
             reportUndocumented.set(true)
             skipEmptyPackages.set(true)
             includes.from("src/module.md")
-            //sourceRoot(kotlin.sourceSets.getByName("commonMain").kotlin.srcDirs.first())
-            //platform.set(org.jetbrains.dokka.Platform.common)
+            // sourceRoot(kotlin.sourceSets.getByName("commonMain").kotlin.srcDirs.first())
+            // platform.set(org.jetbrains.dokka.Platform.common)
             perPackageOption {
                 matchingRegex.set("au\\.id\\.micolous\\.kotlin\\.pcsc\\.(jna|internal|native)(\$|\\\\.).*")
                 suppress.set(true)

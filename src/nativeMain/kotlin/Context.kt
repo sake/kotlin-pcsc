@@ -18,13 +18,37 @@
  */
 package au.id.micolous.kotlin.pcsc
 
-import au.id.micolous.kotlin.pcsc.internal.*
-import au.id.micolous.kotlin.pcsc.native.*
-import kotlinx.cinterop.*
-import platform.posix.*
+import au.id.micolous.kotlin.pcsc.internal.DWORD
+import au.id.micolous.kotlin.pcsc.internal.DWORDVar
+import au.id.micolous.kotlin.pcsc.internal.SCARDCONTEXT
+import au.id.micolous.kotlin.pcsc.internal.SCARDCONTEXTVar
+import au.id.micolous.kotlin.pcsc.internal.SCARDHANDLEVar
+import au.id.micolous.kotlin.pcsc.internal.SCARD_E_INVALID_HANDLE
+import au.id.micolous.kotlin.pcsc.internal.SCARD_E_NO_READERS_AVAILABLE
+import au.id.micolous.kotlin.pcsc.internal.SCARD_READERSTATE_A
+import au.id.micolous.kotlin.pcsc.internal.SCardCancel
+import au.id.micolous.kotlin.pcsc.internal.SCardConnect
+import au.id.micolous.kotlin.pcsc.internal.SCardEstablishContext
+import au.id.micolous.kotlin.pcsc.internal.SCardGetStatusChange
+import au.id.micolous.kotlin.pcsc.internal.SCardIsValidContext
+import au.id.micolous.kotlin.pcsc.internal.SCardListReaders
+import au.id.micolous.kotlin.pcsc.internal.SCardReleaseContext
+import au.id.micolous.kotlin.pcsc.internal.asMultiString
+import au.id.micolous.kotlin.pcsc.internal.toMultiString
+import au.id.micolous.kotlin.pcsc.native.wrapPCSCErrors
+import kotlinx.cinterop.addressOf
+import kotlinx.cinterop.alloc
+import kotlinx.cinterop.allocArray
+import kotlinx.cinterop.convert
+import kotlinx.cinterop.get
+import kotlinx.cinterop.memScoped
+import kotlinx.cinterop.ptr
+import kotlinx.cinterop.usePinned
+import kotlinx.cinterop.value
 
-actual class Context private constructor(private var handle: SCARDCONTEXT?) {
-
+actual class Context private constructor(
+    private var handle: SCARDCONTEXT?,
+) {
     // SCardReleaseContext
     actual fun release() {
         val handle = handle ?: return
@@ -35,14 +59,14 @@ actual class Context private constructor(private var handle: SCARDCONTEXT?) {
     }
 
     // SCardIsValidContext
-    actual fun isValid() : Boolean {
-        return when (val handle = handle) {
+    actual fun isValid(): Boolean =
+        when (val handle = handle) {
             null -> false
-            else -> wrapPCSCErrors(falseValue = SCARD_E_INVALID_HANDLE) {
-                SCardIsValidContext(handle)
-            }
+            else ->
+                wrapPCSCErrors(falseValue = SCARD_E_INVALID_HANDLE) {
+                    SCardIsValidContext(handle)
+                }
         }
-    }
 
     // SCardCancel
     actual fun cancel() {
@@ -53,40 +77,47 @@ actual class Context private constructor(private var handle: SCARDCONTEXT?) {
     }
 
     // SCardListReaders
-    actual fun listReaders(groups: List<String>?) : List<String> {
+    actual fun listReaders(groups: List<String>?): List<String> {
         val handle = nonNullHandle()
-        return groups?.asMultiString().useNullablePinned { mszGroups -> memScoped {
-            val pcchReaders = alloc<DWORDVar>()
+        return groups?.asMultiString().useNullablePinned { mszGroups ->
+            memScoped {
+                val pcchReaders = alloc<DWORDVar>()
 
-            // Figure out how much space we need for the buffer
-            val hasReaders = wrapPCSCErrors(falseValue = SCARD_E_NO_READERS_AVAILABLE) {
-                SCardListReaders(handle, mszGroups?.addressOf(0), null, pcchReaders.ptr)
-            }
-
-            val neededLength = pcchReaders.value.toInt()
-            // At least 3 bytes are needed to carry a reader name (1 byte) and 2 null terminators
-            if (hasReaders && neededLength >= 3) {
-                val readers = ByteArray(neededLength)
-                readers.usePinned { mszReaders ->
-                    wrapPCSCErrors {
-                        SCardListReaders(
-                            handle,
-                            mszGroups?.addressOf(0),
-                            mszReaders.addressOf(0),
-                            pcchReaders.ptr
-                        )
+                // Figure out how much space we need for the buffer
+                val hasReaders =
+                    wrapPCSCErrors(falseValue = SCARD_E_NO_READERS_AVAILABLE) {
+                        SCardListReaders(handle, mszGroups?.addressOf(0), null, pcchReaders.ptr)
                     }
-                }
 
-                readers.toMultiString().toList()
-            } else {
-                emptyList()
+                val neededLength = pcchReaders.value.toInt()
+                // At least 3 bytes are needed to carry a reader name (1 byte) and 2 null terminators
+                if (hasReaders && neededLength >= 3) {
+                    val readers = ByteArray(neededLength)
+                    readers.usePinned { mszReaders ->
+                        wrapPCSCErrors {
+                            SCardListReaders(
+                                handle,
+                                mszGroups?.addressOf(0),
+                                mszReaders.addressOf(0),
+                                pcchReaders.ptr,
+                            )
+                        }
+                    }
+
+                    readers.toMultiString().toList()
+                } else {
+                    emptyList()
+                }
             }
-        }}
+        }
     }
 
     // SCardConnect
-    actual fun connect(reader: String, shareMode: ShareMode, preferredProtcols: Set<Protocol>?) : Card {
+    actual fun connect(
+        reader: String,
+        shareMode: ShareMode,
+        preferredProtcols: Set<Protocol>?,
+    ): Card {
         val protocolMask: DWORD = preferredProtcols?.toDWord() ?: 0u
         val handle = nonNullHandle()
 
@@ -103,18 +134,20 @@ actual class Context private constructor(private var handle: SCARDCONTEXT?) {
     }
 
     // SCardGetStatusChange
-    actual suspend fun getStatusChange(timeout: Int, readers: List<ReaderState>): List<ReaderState> {
+    actual suspend fun getStatusChange(
+        timeout: Int,
+        readers: List<ReaderState>,
+    ): List<ReaderState> {
         val handle = nonNullHandle()
 
         return memScoped {
             // Copy the List<ReaderState> into an array with native types.
             // This will be passed by reference, and mutated...
             val rgReaderStates = allocArray<SCARD_READERSTATE_A>(readers.size)
-            readers.forEachIndexed{ i, j -> rgReaderStates[i].copyFrom(memScope, j) }
+            readers.forEachIndexed { i, j -> rgReaderStates[i].copyFrom(memScope, j) }
 
             wrapPCSCErrors {
-                SCardGetStatusChange(
-                    handle, timeout.convert<DWORD>(), rgReaderStates, readers.size.convert<DWORD>())
+                SCardGetStatusChange(handle, timeout.convert<DWORD>(), rgReaderStates, readers.size.convert<DWORD>())
             }
 
             (0 until readers.size).map { i -> rgReaderStates[i].unwrap() }
@@ -130,14 +163,15 @@ actual class Context private constructor(private var handle: SCARDCONTEXT?) {
 
     actual companion object {
         // SCardEstablishContext
-        actual fun establish(scope: Scope) : Context {
-            return Context(memScoped {
-                val phContext = alloc<SCARDCONTEXTVar>()
-                wrapPCSCErrors {
-                    SCardEstablishContext(scope.v, null, null, phContext.ptr)
-                }
-                phContext.value
-            })
-        }
+        actual fun establish(scope: Scope): Context =
+            Context(
+                memScoped {
+                    val phContext = alloc<SCARDCONTEXTVar>()
+                    wrapPCSCErrors {
+                        SCardEstablishContext(scope.v, null, null, phContext.ptr)
+                    }
+                    phContext.value
+                },
+            )
     }
 }

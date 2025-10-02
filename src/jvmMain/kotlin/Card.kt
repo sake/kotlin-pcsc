@@ -18,13 +18,22 @@
  */
 package au.id.micolous.kotlin.pcsc
 
-import au.id.micolous.kotlin.pcsc.jna.*
+import au.id.micolous.kotlin.pcsc.jna.Dword
+import au.id.micolous.kotlin.pcsc.jna.DwordByReference
+import au.id.micolous.kotlin.pcsc.jna.LIB
+import au.id.micolous.kotlin.pcsc.jna.MAX_BUFFER_SIZE
+import au.id.micolous.kotlin.pcsc.jna.SCardHandle
+import au.id.micolous.kotlin.pcsc.jna.SCardIoRequest
+import au.id.micolous.kotlin.pcsc.jna.getByteArray
+import au.id.micolous.kotlin.pcsc.jna.getMultiString
+import au.id.micolous.kotlin.pcsc.jna.maybeAlloc
+import au.id.micolous.kotlin.pcsc.jna.wrapPCSCErrors
 import java.nio.ByteBuffer
 
 actual class Card internal constructor(
     private val handle: SCardHandle,
-    actual var protocol: Protocol?) {
-
+    actual var protocol: Protocol?,
+) {
     // SCardDisconnect
     actual fun disconnect(disposition: DisconnectDisposition) {
         wrapPCSCErrors {
@@ -37,7 +46,7 @@ actual class Card internal constructor(
     actual fun reconnect(
         shareMode: ShareMode,
         preferredProtcols: Set<Protocol>?,
-        initialization: Initialization
+        initialization: Initialization,
     ) {
         val protocolMask = Dword(preferredProtcols?.toLong() ?: 0)
 
@@ -48,12 +57,11 @@ actual class Card internal constructor(
                 shareMode.v,
                 protocolMask,
                 initialization.v,
-                pdwActiveProtocol
+                pdwActiveProtocol,
             )
         }
 
         protocol = pdwActiveProtocol.value.toLong().toProtocol()
-
     }
 
     // SCardTransmit
@@ -75,7 +83,7 @@ actual class Card internal constructor(
                 cbSendLength,
                 null,
                 pbRecvBuffer,
-                pcbRecvLength
+                pcbRecvLength,
             )
         }
 
@@ -120,7 +128,7 @@ actual class Card internal constructor(
                 pdwState,
                 pdwProtocol,
                 atr,
-                pcbAtrLen
+                pcbAtrLen,
             )
         }
 
@@ -131,8 +139,10 @@ actual class Card internal constructor(
         return CardStatus(
             readerNames = readerNames?.getMultiString(pcchReaderLen.value.toInt())?.toList() ?: emptyList(),
             // SCARD_UNKNOWN == 0 on Windows
-            unknown = ((SCARD_UNKNOWN == 0L && state == SCARD_UNKNOWN) ||
-                    (SCARD_UNKNOWN != 0L && (state and SCARD_UNKNOWN) == SCARD_UNKNOWN)),
+            unknown = (
+                (SCARD_UNKNOWN == 0L && state == SCARD_UNKNOWN) ||
+                    (SCARD_UNKNOWN != 0L && (state and SCARD_UNKNOWN) == SCARD_UNKNOWN)
+            ),
             // These are all written as bitmasks to be compatible with pcsclite and Windows
             absent = (state and SCARD_ABSENT) == SCARD_ABSENT,
             present = (state and SCARD_PRESENT) == SCARD_PRESENT,
@@ -141,12 +151,16 @@ actual class Card internal constructor(
             negotiable = (state and SCARD_NEGOTIABLE) == SCARD_NEGOTIABLE,
             specific = (state and SCARD_SPECIFIC) == SCARD_SPECIFIC,
             protocol = pdwProtocol.value.toLong().toProtocol(),
-            atr = atr?.getByteArray(pcbAtrLen.value.toInt()) ?: ByteArray(0)
+            atr = atr?.getByteArray(pcbAtrLen.value.toInt()) ?: ByteArray(0),
         )
     }
 
     // SCardControl
-    actual fun control(controlCode: Long, sendBuffer: ByteArray?, recvBufferSize: Int): ByteArray? {
+    actual fun control(
+        controlCode: Long,
+        sendBuffer: ByteArray?,
+        recvBufferSize: Int,
+    ): ByteArray? {
         require(recvBufferSize >= 0) { "recvBufferSize must be >= 0" }
         val bSendBuffer = sendBuffer?.copyOf()
         val cbSendLength = Dword(bSendBuffer?.size?.toLong() ?: 0)
@@ -162,7 +176,7 @@ actual class Card internal constructor(
                 cbSendLength,
                 bRecvBuffer,
                 cbRecvLength,
-                lpBytesReturned
+                lpBytesReturned,
             )
         }
 
@@ -180,7 +194,8 @@ actual class Card internal constructor(
         val pcbAttrLen = DwordByReference()
         if (!wrapPCSCErrors(falseValue = PCSCErrorCode.E_UNEXPECTED) {
                 LIB.value.SCardGetAttrib(handle, dwAttrId, null, pcbAttrLen)
-            }) {
+            }
+        ) {
             // Unsupported function
             return null
         }

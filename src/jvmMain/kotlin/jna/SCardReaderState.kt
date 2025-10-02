@@ -18,16 +18,21 @@
  */
 package au.id.micolous.kotlin.pcsc.jna
 
-import au.id.micolous.kotlin.pcsc.*
+import au.id.micolous.kotlin.pcsc.ReaderState
+import au.id.micolous.kotlin.pcsc.State
+import au.id.micolous.kotlin.pcsc.hasBits
+import au.id.micolous.kotlin.pcsc.orLongs
+import au.id.micolous.kotlin.pcsc.orULongs
 import com.sun.jna.Platform
 import com.sun.jna.Pointer
 import com.sun.jna.Structure
 
-private val READER_STATE_ALIGN = if (Platform.isMac()) {
-    Structure.ALIGN_NONE
-} else {
-    Structure.ALIGN_DEFAULT
-}
+private val READER_STATE_ALIGN =
+    if (Platform.isMac()) {
+        Structure.ALIGN_NONE
+    } else {
+        Structure.ALIGN_DEFAULT
+    }
 
 private const val SCARD_STATE_UNAWARE = 0x0000L
 private const val SCARD_STATE_IGNORE = 0x0001L
@@ -42,44 +47,49 @@ private const val SCARD_STATE_INUSE = 0x0100L
 private const val SCARD_STATE_MUTE = 0x0200L
 private const val SCARD_STATE_UNPOWERED = 0x0400L
 
-
-internal class SCardReaderState(p: Pointer? = null) : Structure(p, READER_STATE_ALIGN) {
+internal class SCardReaderState(
+    p: Pointer? = null,
+) : Structure(p, READER_STATE_ALIGN) {
     @JvmField
     var szReader = ""
+
     @JvmField
     var pvUserData: Pointer? = null
+
     @JvmField
     var dwCurrentState = Dword()
+
     @JvmField
     var dwEventState = Dword()
+
     @JvmField
     var cbAtr = Dword()
+
     @JvmField
     var rgbAtr = ByteArray(MAX_ATR_SIZE)
 
-    override fun getFieldOrder(): MutableList<String> {
-        return mutableListOf(
+    override fun getFieldOrder(): MutableList<String> =
+        mutableListOf(
             "szReader",
             "pvUserData",
             "dwCurrentState",
             "dwEventState",
             "cbAtr",
-            "rgbAtr"
+            "rgbAtr",
         )
-    }
 
-    override fun toString(): String {
-        return "${javaClass.name}{szReader: $szReader, pvUserData: $pvUserData, " +
-                "dwCurrentState: $dwCurrentState, dwEventState: $dwEventState, cbAtr: $cbAtr, " +
-                "rgbAtr: $rgbAtr"
-    }
+    override fun toString(): String =
+        "${javaClass.name}{szReader: $szReader, pvUserData: $pvUserData, " +
+            "dwCurrentState: $dwCurrentState, dwEventState: $dwEventState, cbAtr: $cbAtr, " +
+            "rgbAtr: $rgbAtr"
 
-    internal fun unwrap() = ReaderState(
-        reader = szReader,
-        currentState = dwCurrentState.toState(),
-        eventState = dwEventState.toState(),
-        atr = rgbAtr.copyOf(cbAtr.toInt())
-    )
+    internal fun unwrap() =
+        ReaderState(
+            reader = szReader,
+            currentState = dwCurrentState.toState(),
+            eventState = dwEventState.toState(),
+            atr = rgbAtr.copyOf(cbAtr.toInt()),
+        )
 
     internal fun copyFrom(state: ReaderState) {
         szReader = state.reader
@@ -91,24 +101,29 @@ internal class SCardReaderState(p: Pointer? = null) : Structure(p, READER_STATE_
 
     companion object {
         @Suppress("UNCHECKED_CAST")
-        internal fun makeArray(size: Int): Array<SCardReaderState> {
-            return SCardReaderState().toArray(size)!! as Array<SCardReaderState>
-        }
+        internal fun makeArray(size: Int): Array<SCardReaderState> =
+            SCardReaderState().toArray(size)!! as Array<SCardReaderState>
     }
 }
 
-private fun State.toDword() = Dword(
-        if (ignore) SCARD_STATE_IGNORE else 0L or
-        if (changed) SCARD_STATE_CHANGED else 0L or
-        if (unknown) SCARD_STATE_UNKNOWN else 0L or
-        if (unavailable) SCARD_STATE_UNAVAILABLE else 0L or
-        if (empty) SCARD_STATE_EMPTY else 0L or
-        if (present) SCARD_STATE_PRESENT else 0L or
-        if (atrMatch) SCARD_STATE_ATRMATCH else 0L or
-        if (exclusive) SCARD_STATE_EXCLUSIVE else 0L or
-        if (inUse) SCARD_STATE_INUSE else 0L or
-        if (mute) SCARD_STATE_MUTE else 0L or
-        if (unpowered) SCARD_STATE_UNPOWERED else 0L
+private fun State.toDword() =
+    Dword(
+        if (ignore) {
+            SCARD_STATE_IGNORE
+        } else {
+            orLongs(
+                if (changed) SCARD_STATE_CHANGED else 0L,
+                if (unknown) SCARD_STATE_UNKNOWN else 0L,
+                if (unavailable) SCARD_STATE_UNAVAILABLE else 0L,
+                if (empty) SCARD_STATE_EMPTY else 0L,
+                if (present) SCARD_STATE_PRESENT else 0L,
+                if (atrMatch) SCARD_STATE_ATRMATCH else 0L,
+                if (exclusive) SCARD_STATE_EXCLUSIVE else 0L,
+                if (inUse) SCARD_STATE_INUSE else 0L,
+                if (mute) SCARD_STATE_MUTE else 0L,
+                if (unpowered) SCARD_STATE_UNPOWERED else 0L,
+            )
+        },
     )
 
 private fun Dword.toState(): State {
@@ -124,10 +139,11 @@ private fun Dword.toState(): State {
         exclusive = v.hasBits(SCARD_STATE_EXCLUSIVE),
         inUse = v.hasBits(SCARD_STATE_INUSE),
         mute = v.hasBits(SCARD_STATE_MUTE),
-        unpowered = v.hasBits(SCARD_STATE_UNPOWERED)
+        unpowered = v.hasBits(SCARD_STATE_UNPOWERED),
     )
 }
 
-internal fun ReaderState.toJna() = SCardReaderState().apply {
-    copyFrom(this@toJna)
-}
+internal fun ReaderState.toJna() =
+    SCardReaderState().apply {
+        copyFrom(this@toJna)
+    }

@@ -29,25 +29,23 @@ internal val SCARD_PCI_T1 = getSCardIoRequest("g_rgSCardT1Pci")
 internal val SCARD_PCI_RAW = getSCardIoRequest("g_rgSCardRawPci")
 
 // SCARD_IO_REQUEST
-internal class SCardIoRequest(p: Pointer? = null) : Structure(p) {
+internal class SCardIoRequest(
+    p: Pointer? = null,
+) : Structure(p) {
     @JvmField var dwProtocol = Dword()
+
     @JvmField var cbPciLength = Dword()
 
-    override fun getFieldOrder(): MutableList<String> {
-        return mutableListOf("dwProtocol", "cbPciLength")
-    }
+    override fun getFieldOrder(): MutableList<String> = mutableListOf("dwProtocol", "cbPciLength")
 
-    override fun toString(): String {
-        return "${javaClass.name}{dwProtocol: $dwProtocol, cbPciLength: $cbPciLength}"
-    }
+    override fun toString(): String = "${javaClass.name}{dwProtocol: $dwProtocol, cbPciLength: $cbPciLength}"
 
     companion object {
-        private fun build(dwProtocol: Dword): SCardIoRequest {
-            return SCardIoRequest().apply {
+        private fun build(dwProtocol: Dword): SCardIoRequest =
+            SCardIoRequest().apply {
                 this.dwProtocol = dwProtocol
                 this.cbPciLength = Dword(this.size().toLong())
             }
-        }
 
         fun getForProtocol(protocol: Protocol?): SCardIoRequest =
             when (val p = protocol ?: Protocol.Undefined) {
@@ -60,10 +58,10 @@ internal class SCardIoRequest(p: Pointer? = null) : Structure(p) {
     }
 }
 
-private fun getSCardIoRequest(v: String) = lazy {
-    SCardIoRequest(NATIVE_LIB.value.getGlobalVariableAddress(v)).apply {
-        read()
-        setAutoSynch(false)
+private fun getSCardIoRequest(v: String) =
+    lazy {
+        SCardIoRequest(NATIVE_LIB.value.getGlobalVariableAddress(v)).apply {
+            read()
+            setAutoSynch(false)
+        }
     }
-}
-

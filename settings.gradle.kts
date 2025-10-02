@@ -5,7 +5,6 @@ dependencyResolutionManagement {
     }
 }
 
-
 rootProject.name = "kotlin-pcsc"
 
-//include("sample")
+// include("sample")

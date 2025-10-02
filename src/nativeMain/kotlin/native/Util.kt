@@ -18,9 +18,11 @@
  */
 package au.id.micolous.kotlin.pcsc
 
-import au.id.micolous.kotlin.pcsc.internal.*
-import kotlin.reflect.*
-import kotlinx.cinterop.*
+import au.id.micolous.kotlin.pcsc.internal.DWORD
+import au.id.micolous.kotlin.pcsc.internal.DWORDVar
+import kotlinx.cinterop.Pinned
+import kotlinx.cinterop.usePinned
+import kotlinx.cinterop.value
 
 /**
  * Similar to [usePinned], but handles null values.
@@ -49,6 +51,7 @@ internal fun maybeByteArray(length: Int): ByteArray? {
 }
 
 internal fun maybeByteArray(length: DWORD) = maybeByteArray(length.toInt())
+
 internal fun maybeByteArray(length: DWORDVar) = maybeByteArray(length.value.toInt())
 
 /**
@@ -63,4 +66,5 @@ internal fun maybeUByteArray(length: Int): UByteArray? {
 }
 
 internal fun maybeUByteArray(length: DWORD) = maybeUByteArray(length.toInt())
+
 internal fun maybeUByteArray(length: DWORDVar) = maybeUByteArray(length.value.toInt())

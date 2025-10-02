@@ -18,22 +18,21 @@
  */
 package au.id.micolous.kotlin.pcsc.native
 
-import au.id.micolous.kotlin.pcsc.*
-import au.id.micolous.kotlin.pcsc.internal.*
-import kotlinx.cinterop.*
-import platform.posix.int32_t
-import platform.posix.uint32_t
+import au.id.micolous.kotlin.pcsc.PCSCError
+import au.id.micolous.kotlin.pcsc.internal.SCARDSTATUS
+import au.id.micolous.kotlin.pcsc.internal.SCARD_S_SUCCESS
+import kotlinx.cinterop.convert
 
 internal inline fun wrapPCSCErrors(
     trueValue: SCARDSTATUS = SCARD_S_SUCCESS.convert(),
     falseValue: SCARDSTATUS? = null,
-    f: () -> SCARDSTATUS): Boolean {
-    return when (val errorCode = f()) {
+    f: () -> SCARDSTATUS,
+): Boolean =
+    when (val errorCode = f()) {
         trueValue -> true
         falseValue -> false
         else -> throw PCSCError.fromCode(errorCode)
     }
-}
 
 /*
  * This definition of `wrapPCSCErrors` is needed for macOS:
@@ -46,13 +45,12 @@ internal inline fun wrapPCSCErrors(
 internal inline fun wrapPCSCErrors(
     trueValue: SCARDSTATUS = SCARD_S_SUCCESS.convert(),
     falseValue: UInt? = null,
-    f: () -> SCARDSTATUS): Boolean =
-    wrapPCSCErrors(trueValue, falseValue?.convert<SCARDSTATUS>(), f)
+    f: () -> SCARDSTATUS,
+): Boolean = wrapPCSCErrors(trueValue, falseValue?.convert<SCARDSTATUS>(), f)
 
 /*
  * This definition of `wrapPCSCErrors` is needed to work around overload resolution ambigity for
  * bare calls with only a `f` parameter introduced by the (previous) macOS work-around.
  */
-internal inline fun wrapPCSCErrors(
-    f: () -> SCARDSTATUS): Boolean =
+internal inline fun wrapPCSCErrors(f: () -> SCARDSTATUS): Boolean =
     wrapPCSCErrors(falseValue = (null as SCARDSTATUS?), f = f)

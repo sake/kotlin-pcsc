@@ -18,12 +18,19 @@
  */
 package au.id.micolous.kotlin.pcsc.jna
 
-import com.sun.jna.*
+import com.sun.jna.FunctionMapper
+import com.sun.jna.Library
+import com.sun.jna.Native
+import com.sun.jna.NativeLibrary
+import com.sun.jna.Platform
 import java.lang.reflect.Method
 
-private object MacOSFunctionMap: FunctionMapper {
-    override fun getFunctionName(library: NativeLibrary, method: Method): String {
-        return when (val name = method.name!!) {
+private object MacOSFunctionMap : FunctionMapper {
+    override fun getFunctionName(
+        library: NativeLibrary,
+        method: Method,
+    ): String =
+        when (val name = method.name) {
             // SCardControl132 implements "standard" SCardControl signature in pcsc-lite 1.3.2 and
             // later. Older versions had a different signature.
             //
@@ -31,30 +38,33 @@ private object MacOSFunctionMap: FunctionMapper {
             "SCardControl" -> "SCardControl132"
             else -> name
         }
-    }
 }
 
-private object WindowsFunctionMap: FunctionMapper {
-    override fun getFunctionName(library: NativeLibrary, method: Method): String {
-        return when (val name = method.name!!) {
+private object WindowsFunctionMap : FunctionMapper {
+    override fun getFunctionName(
+        library: NativeLibrary,
+        method: Method,
+    ): String =
+        when (val name = method.name) {
             // Remap all method calls to the ASCII versions.
             "SCardListReaderGroups",
             "SCardListReaders",
             "SCardGetStatusChange",
             "SCardConnect",
-            "SCardStatus" -> name + "A"
+            "SCardStatus",
+            -> name + "A"
 
             else -> name
         }
-    }
 }
 
-internal val LIB = lazy {
-    val options = mutableMapOf<String, Any>()
-    when {
-        Platform.isMac() -> options[Library.OPTION_FUNCTION_MAPPER] = MacOSFunctionMap
-        Platform.isWindows() -> options[Library.OPTION_FUNCTION_MAPPER] = WindowsFunctionMap
-    }
+internal val LIB =
+    lazy {
+        val options = mutableMapOf<String, Any>()
+        when {
+            Platform.isMac() -> options[Library.OPTION_FUNCTION_MAPPER] = MacOSFunctionMap
+            Platform.isWindows() -> options[Library.OPTION_FUNCTION_MAPPER] = WindowsFunctionMap
+        }
 
-    Native.load(LIB_NAME, WinscardLibrary::class.java, options) as WinscardLibrary
-}
+        Native.load(LIB_NAME, WinscardLibrary::class.java, options) as WinscardLibrary
+    }

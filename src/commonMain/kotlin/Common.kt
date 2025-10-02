@@ -20,10 +20,14 @@
 package au.id.micolous.kotlin.pcsc
 
 /** If the host byte order is little endian, this returns true. */
-expect internal val isLittleEndian: Boolean
+internal expect val isLittleEndian: Boolean
 
 internal fun ByteArray.asBigEndian(): ByteArray = if (isLittleEndian) reversedArray() else this
-internal fun ByteArray.getLong(off: Int = 0, len: Int = off - size): Long {
+
+internal fun ByteArray.getLong(
+    off: Int = 0,
+    len: Int = off - size,
+): Long {
     require(off >= 0) { "off must be >= 0" }
     require(len >= 0) { "len must be >= 0" }
     val last = off + len
@@ -37,12 +41,22 @@ internal fun ByteArray.getLong(off: Int = 0, len: Int = off - size): Long {
     return o
 }
 
-internal fun ByteArray.getInt(off: Int = 0, len: Int = off - size): Int = getLong(off, len).toInt()
+internal fun ByteArray.getInt(
+    off: Int = 0,
+    len: Int = off - size,
+): Int = getLong(off, len).toInt()
 
 /** A really long timeout value. */
 const val LONG_TIMEOUT = 50 * 86400 // days
 
 @Suppress("NOTHING_TO_INLINE")
 internal inline fun Int.hasBits(mask: Int) = (this and mask) == mask
+
 @Suppress("NOTHING_TO_INLINE")
 internal inline fun Long.hasBits(mask: Long) = (this and mask) == mask
+
+@OptIn(ExperimentalUnsignedTypes::class)
+internal fun orULongs(vararg values: ULong): ULong = values.fold(0u) { v1, v2 -> v1 or v2 }
+
+@OptIn(ExperimentalUnsignedTypes::class)
+internal fun orLongs(vararg values: Long): Long = values.fold(0) { v1, v2 -> v1 or v2 }

@@ -25,7 +25,8 @@ enum class PCSCErrorCode(
     /** Numeric error code */
     val code: Long,
     /** Description of the error condition */
-    val description: String) {
+    val description: String,
+) {
     /** `0x00000000`: No error was encountered */
     S_SUCCESS(0x00000000L, "No error was encountered"),
 
@@ -72,7 +73,10 @@ enum class PCSCErrorCode(
     E_CANT_DISPOSE(0x8010000EL, "The system could not dispose of the media in the requested manner"),
 
     /** `0x8010000F`: The requested protocols are incompatible with the protocol currently in use with the smart card */
-    E_PROTO_MISMATCH(0x8010000FL, "The requested protocols are incompatible with the protocol currently in use with the smart card"),
+    E_PROTO_MISMATCH(
+        0x8010000FL,
+        "The requested protocols are incompatible with the protocol currently in use with the smart card",
+    ),
 
     /** `0x80100010`: The reader or smart card is not ready to accept commands */
     E_NOT_READY(0x80100010L, "The reader or smart card is not ready to accept commands"),
@@ -177,13 +181,19 @@ enum class PCSCErrorCode(
     E_SERVER_TOO_BUSY(0x80100031L, "The Smart Card Resource Manager is too busy to complete this operation"),
 
     /** `0x80100065`: The reader cannot communicate with the card, due to ATR string configuration conflicts */
-    W_UNSUPPORTED_CARD(0x80100065L, "The reader cannot communicate with the card, due to ATR string configuration conflicts"),
+    W_UNSUPPORTED_CARD(
+        0x80100065L,
+        "The reader cannot communicate with the card, due to ATR string configuration conflicts",
+    ),
 
     /** `0x80100066`: The smart card is not responding to a reset */
     W_UNRESPONSIVE_CARD(0x80100066L, "The smart card is not responding to a reset"),
 
     /** `0x80100067`: Power has been removed from the smart card, so that further communication is not possible */
-    W_UNPOWERED_CARD(0x80100067L, "Power has been removed from the smart card, so that further communication is not possible"),
+    W_UNPOWERED_CARD(
+        0x80100067L,
+        "Power has been removed from the smart card, so that further communication is not possible",
+    ),
 
     /** `0x80100068`: The smart card has been reset, so any shared state information is invalid */
     W_RESET_CARD(0x80100068L, "The smart card has been reset, so any shared state information is invalid"),
@@ -198,7 +208,10 @@ enum class PCSCErrorCode(
     W_WRONG_CHV(0x8010006BL, "The card cannot be accessed because the wrong PIN was presented"),
 
     /** `0x8010006C`: The card cannot be accessed because the maximum number of PIN entry attempts has been reached */
-    W_CHV_BLOCKED(0x8010006CL, "The card cannot be accessed because the maximum number of PIN entry attempts has been reached"),
+    W_CHV_BLOCKED(
+        0x8010006CL,
+        "The card cannot be accessed because the maximum number of PIN entry attempts has been reached",
+    ),
 
     /** `0x8010006D`: The end of the smart card file has been reached */
     W_EOF(0x8010006DL, "The end of the smart card file has been reached"),
@@ -207,7 +220,8 @@ enum class PCSCErrorCode(
     W_CANCELLED_BY_USER(0x8010006EL, "The user pressed \"Cancel\" on a Smart Card Selection Dialog"),
 
     /** `0x8010006F`: No PIN was presented to the smart card */
-    W_CARD_NOT_AUTHENTICATED(0x8010006FL, "No PIN was presented to the smart card");
+    W_CARD_NOT_AUTHENTICATED(0x8010006FL, "No PIN was presented to the smart card"),
+    ;
 
     /** An error message for human consumption */
     val message: String = "${toString()} (0x${code.toString(16)}): $description"

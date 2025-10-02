@@ -18,11 +18,21 @@
  */
 package au.id.micolous.kotlin.pcsc
 
-import au.id.micolous.kotlin.pcsc.jna.*
+import au.id.micolous.kotlin.pcsc.internal.asMultiString
+import au.id.micolous.kotlin.pcsc.jna.Dword
+import au.id.micolous.kotlin.pcsc.jna.DwordByReference
+import au.id.micolous.kotlin.pcsc.jna.LIB
+import au.id.micolous.kotlin.pcsc.jna.SCardContext
+import au.id.micolous.kotlin.pcsc.jna.SCardContextByReference
+import au.id.micolous.kotlin.pcsc.jna.SCardHandleByReference
+import au.id.micolous.kotlin.pcsc.jna.SCardReaderState
+import au.id.micolous.kotlin.pcsc.jna.getMultiString
+import au.id.micolous.kotlin.pcsc.jna.wrapPCSCErrors
 import java.nio.ByteBuffer
 
-actual class Context private constructor(private var handle: SCardContext?) {
-
+actual class Context private constructor(
+    private var handle: SCardContext?,
+) {
     // SCardReleaseContext
     actual fun release() {
         val handle = handle ?: return
@@ -33,14 +43,14 @@ actual class Context private constructor(private var handle: SCardContext?) {
     }
 
     // SCardIsValidContext
-    actual fun isValid() : Boolean {
-        return when (val handle = handle) {
+    actual fun isValid(): Boolean =
+        when (val handle = handle) {
             null -> false
-            else -> wrapPCSCErrors(falseValue = PCSCErrorCode.E_INVALID_HANDLE) {
-                LIB.value.SCardIsValidContext(handle)
-            }
+            else ->
+                wrapPCSCErrors(falseValue = PCSCErrorCode.E_INVALID_HANDLE) {
+                    LIB.value.SCardIsValidContext(handle)
+                }
         }
-    }
 
     // SCardCancel
     actual fun cancel() {
@@ -51,14 +61,15 @@ actual class Context private constructor(private var handle: SCardContext?) {
     }
 
     // SCardListReaders
-    actual fun listReaders(groups: List<String>?) : List<String> {
+    actual fun listReaders(groups: List<String>?): List<String> {
         val handle = nonNullHandle()
         val pcchReaders = DwordByReference()
         val mszGroups = groups?.asMultiString()
 
-        val hasReaders = wrapPCSCErrors(falseValue = PCSCErrorCode.E_NO_READERS_AVAILABLE) {
-            LIB.value.SCardListReaders(handle, mszGroups, null, pcchReaders)
-        }
+        val hasReaders =
+            wrapPCSCErrors(falseValue = PCSCErrorCode.E_NO_READERS_AVAILABLE) {
+                LIB.value.SCardListReaders(handle, mszGroups, null, pcchReaders)
+            }
 
         val neededLength = pcchReaders.value.toInt()
 
@@ -71,7 +82,7 @@ actual class Context private constructor(private var handle: SCardContext?) {
                     handle,
                     mszGroups,
                     readers,
-                    pcchReaders
+                    pcchReaders,
                 )
             }
 
@@ -83,7 +94,11 @@ actual class Context private constructor(private var handle: SCardContext?) {
     }
 
     // SCardConnect
-    actual fun connect(reader: String, shareMode: ShareMode, preferredProtcols: Set<Protocol>?) : Card {
+    actual fun connect(
+        reader: String,
+        shareMode: ShareMode,
+        preferredProtcols: Set<Protocol>?,
+    ): Card {
         val protocolMask = Dword(preferredProtcols?.toLong() ?: 0)
         val handle = nonNullHandle()
 
@@ -98,18 +113,20 @@ actual class Context private constructor(private var handle: SCardContext?) {
     }
 
     // SCardGetStatusChange
-    actual suspend fun getStatusChange(timeout: Int, readers: List<ReaderState>): List<ReaderState> {
+    actual suspend fun getStatusChange(
+        timeout: Int,
+        readers: List<ReaderState>,
+    ): List<ReaderState> {
         val handle = nonNullHandle()
         val readerCount = Dword(readers.size.toLong())
 
         // Copy the List<ReaderState> into an array with native types.
         // This will be passed by reference, and mutated...
         val jnaReaderStates = SCardReaderState.makeArray(readers.size)
-        jnaReaderStates.forEachIndexed{ i, j -> j.copyFrom(readers[i]) }
+        jnaReaderStates.forEachIndexed { i, j -> j.copyFrom(readers[i]) }
 
         wrapPCSCErrors {
-            LIB.value.SCardGetStatusChange(
-                handle, Dword(timeout.toLong()), jnaReaderStates, readerCount)
+            LIB.value.SCardGetStatusChange(handle, Dword(timeout.toLong()), jnaReaderStates, readerCount)
         }
 
         return jnaReaderStates.toList().map { it.unwrap() }
@@ -124,11 +141,10 @@ actual class Context private constructor(private var handle: SCardContext?) {
 
     actual companion object {
         // SCardEstablishContext
-        actual fun establish(scope: Scope) : Context {
+        actual fun establish(scope: Scope): Context {
             val phContext = SCardContextByReference()
             wrapPCSCErrors {
-                LIB.value.SCardEstablishContext(
-                    scope.v, null, null, phContext)
+                LIB.value.SCardEstablishContext(scope.v, null, null, phContext)
             }
 
             return Context(phContext.handle)

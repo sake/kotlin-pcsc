@@ -18,9 +18,15 @@
  */
 package au.id.micolous.kotlin.pcsc.test
 
-import au.id.micolous.kotlin.pcsc.*
+import au.id.micolous.kotlin.pcsc.Context
+import au.id.micolous.kotlin.pcsc.Initialization
+import au.id.micolous.kotlin.pcsc.Protocol
+import au.id.micolous.kotlin.pcsc.Scope
+import au.id.micolous.kotlin.pcsc.ShareMode
+import au.id.micolous.kotlin.pcsc.connect
+import au.id.micolous.kotlin.pcsc.getAllReaderStatus
+import au.id.micolous.kotlin.pcsc.reconnect
 import kotlin.test.Test
-import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -41,14 +47,12 @@ class ContextTest {
     }
 
     // TODO: Fails on Windows
-    /*
-    @Test
-    fun testTerminalContext() {
-        val context = Context.establish(Scope.Terminal)
-        assertTrue(context.isValid())
-        context.release()
-    }
-     */
+//    @Test
+//    fun testTerminalContext() {
+//        val context = Context.establish(Scope.Terminal)
+//        assertTrue(context.isValid())
+//        context.release()
+//    }
 
     @Test
     fun testListReaders() {

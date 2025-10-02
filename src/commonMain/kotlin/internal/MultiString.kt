@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package au.id.micolous.kotlin.pcsc
+package au.id.micolous.kotlin.pcsc.internal
 
 /**
  * Encodes a [Collection] of [String] as a "multi-string" (`msz`) type.
@@ -26,7 +26,7 @@ package au.id.micolous.kotlin.pcsc
  *
  * Text output is presumed to be encoded as UTF-8.
  */
-internal fun Collection<String>.asMultiString() : ByteArray {
+internal fun Collection<String>.asMultiString(): ByteArray {
     val buf = mutableListOf<Byte>()
     for (group in this) {
         group.encodeToByteArray(0, group.length, true).toCollection(buf)
@@ -59,7 +59,9 @@ private const val ZERO: Byte = 0
  * @param len Length of the multi-string, in bytes
  */
 internal fun ByteArray.toMultiString(
-    off: Int = 0, len: Int = (size - off)): Sequence<String> {
+    off: Int = 0,
+    len: Int = (size - off),
+): Sequence<String> {
     require(off >= 0) { "off must be greater than or equal to 0" }
     require(len >= 0) { "len must be greater than or equal to 0" }
     require(off <= size) { "off must be less than or equal to $size" }

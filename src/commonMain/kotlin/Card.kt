@@ -64,7 +64,7 @@ expect class Card {
     fun reconnect(
         shareMode: ShareMode,
         preferredProtcols: Set<Protocol>?,
-        initialization: Initialization
+        initialization: Initialization,
     )
 
     /**
@@ -79,7 +79,7 @@ expect class Card {
      * @throws NotImplementedError if [protocol] is not supported
      * @throws PCSCError
      */
-    fun transmit(buffer: ByteArray) : ByteArray
+    fun transmit(buffer: ByteArray): ByteArray
 
     /**
      * Starts a new transaction on the card.
@@ -127,7 +127,11 @@ expect class Card {
      * @return Correctly-sized [ByteArray] with the return buffer from the card, or `null` if
      * [recvBufferSize] == 0
      */
-    fun control(controlCode: Long, sendBuffer: ByteArray? = null, recvBufferSize: Int = 0): ByteArray?
+    fun control(
+        controlCode: Long,
+        sendBuffer: ByteArray? = null,
+        recvBufferSize: Int = 0,
+    ): ByteArray?
 
     /**
      * Gets an attribute from the device.
@@ -149,8 +153,11 @@ expect class Card {
  *
  * @see [Card.reconnect]
  */
-fun Card.reconnect(shareMode: ShareMode, preferredProtocol: Protocol = Protocol.Any, initialization: Initialization)
-        = reconnect(shareMode, setOf(preferredProtocol), initialization)
+fun Card.reconnect(
+    shareMode: ShareMode,
+    preferredProtocol: Protocol = Protocol.Any,
+    initialization: Initialization,
+) = reconnect(shareMode, setOf(preferredProtocol), initialization)
 
 /**
  * Gets an attribute of a [Card] by its attribute information class and tag ID.
@@ -159,7 +166,10 @@ fun Card.reconnect(shareMode: ShareMode, preferredProtocol: Protocol = Protocol.
  * @param tag The attribute's tag ID, must be between 0 and 0xffff
  * @return Attribute data, or `null` if the attribute is not supported.
  */
-fun Card.getAttrib(cls: Int, tag: Int): ByteArray? {
+fun Card.getAttrib(
+    cls: Int,
+    tag: Int,
+): ByteArray? {
     require(tag >= 0) { "tag ID must be >= 0" }
     require(tag <= 0xffff) { "tag ID must be <= 0xFFFF" }
     return getAttrib((cls.toLong() shl 16) or (tag.toLong() and 0xffffL))
@@ -170,6 +180,9 @@ fun Card.getAttrib(cls: Int, tag: Int): ByteArray? {
  *
  * This version has no receive buffer, and always returns null.
  */
-fun Card.control(controlCode: Long, sendBuffer: ByteArray? = null) {
+fun Card.control(
+    controlCode: Long,
+    sendBuffer: ByteArray? = null,
+) {
     control(controlCode, sendBuffer, recvBufferSize = 0)
 }

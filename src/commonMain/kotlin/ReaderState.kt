@@ -36,9 +36,14 @@ data class State(
     val exclusive: Boolean = false,
     val inUse: Boolean = false,
     val mute: Boolean = false,
-    val unpowered: Boolean = false
+    val unpowered: Boolean = false,
 ) {
-    val unaware = !(ignore || changed || unknown || unavailable || empty || present || atrMatch || exclusive || inUse || mute || unpowered)
+    val unaware =
+        !(
+            ignore || changed || unknown || unavailable || empty || present || atrMatch || exclusive || inUse ||
+                mute ||
+                unpowered
+        )
 
     companion object {
         val UNAWARE = State()
@@ -57,15 +62,16 @@ data class ReaderState(
     val reader: String,
     val currentState: State = State.UNAWARE,
     val eventState: State = State.UNAWARE,
-    val atr: ByteArray = ByteArray(0)
+    val atr: ByteArray = ByteArray(0),
 ) {
     /**
      * Transforms this [ReaderState] into a version where the eventState is the current state.
      */
-    fun update() = ReaderState(
-        reader = reader,
-        currentState = eventState,
-        eventState = State.UNAWARE,
-        atr = atr
-    )
+    fun update() =
+        ReaderState(
+            reader = reader,
+            currentState = eventState,
+            eventState = State.UNAWARE,
+            atr = atr,
+        )
 }

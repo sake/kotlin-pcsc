@@ -21,25 +21,27 @@ package au.id.micolous.kotlin.pcsc
 expect enum class Scope {
     User,
     Terminal,
-    System
+    System,
 }
 
 expect enum class ShareMode {
     Shared,
     Exclusive,
-    Direct
+    Direct,
 }
 
 expect enum class Protocol {
     Unset,
     Any,
+
     /** T=0 protocol */
     T0,
+
     /** T=1 protocol */
     T1,
     T15,
     Raw,
-    Undefined
+    Undefined,
 }
 
 /**
@@ -49,16 +51,19 @@ expect enum class Protocol {
 expect enum class DisconnectDisposition {
     /** Do not do anything special when disconnecting. */
     Leave,
+
     /** Reset the card when disconnecting. */
     Reset,
+
     /** Power down the card when disconnecting. */
     Unpower,
+
     /** Physically eject the card when disconnecting. This may not be possible on all readers. */
-    Eject
+    Eject,
 }
 
 expect enum class Initialization {
     Leave,
     Reset,
-    Unpower
+    Unpower,
 }

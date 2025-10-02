@@ -18,7 +18,7 @@
  */
 package au.id.micolous.kotlin.pcsc
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.runBlocking
 
 /**
  * Main interface for PC/SC API operations (`SCARDCONTEXT`).
@@ -40,7 +40,7 @@ expect class Context {
      * Equivalent to
      * [SCardIsValidContext](https://docs.microsoft.com/en-us/windows/win32/api/winscard/nf-winscard-scardisvalidcontext).
      */
-    fun isValid() : Boolean
+    fun isValid(): Boolean
 
     /**
      * Terminates all outstanding actions within this [Context].
@@ -62,7 +62,7 @@ expect class Context {
      * @return [List] of reader names, as [String], which can be used with [connect].
      * If there are no readers available, returns an empty list.
      */
-    fun listReaders(groups: List<String>? = null) : List<String>
+    fun listReaders(groups: List<String>? = null): List<String>
 
     /**
      * Connects to a given reader.
@@ -78,7 +78,11 @@ expect class Context {
      * avaliable as [Card.protocol]
      * @throws PCSCError
      */
-    fun connect(reader: String, shareMode: ShareMode, preferredProtcols: Set<Protocol>?) : Card
+    fun connect(
+        reader: String,
+        shareMode: ShareMode,
+        preferredProtcols: Set<Protocol>?,
+    ): Card
 
     /**
      * Waits for status changes in the given list of readers.
@@ -88,7 +92,10 @@ expect class Context {
      *
      * @param timeout Number of seconds to wait. To wait for a long time, use [LONG_TIMEOUT].
      */
-    suspend fun getStatusChange(timeout: Int, readers: List<ReaderState>) : List<ReaderState>
+    suspend fun getStatusChange(
+        timeout: Int,
+        readers: List<ReaderState>,
+    ): List<ReaderState>
 
     companion object {
         /**
@@ -101,7 +108,7 @@ expect class Context {
          * @return [Context] for working with PC/SC API
          * @throws PCSCError
          */
-        fun establish(scope: Scope = Scope.User) : Context
+        fun establish(scope: Scope = Scope.User): Context
     }
 }
 
@@ -110,8 +117,11 @@ expect class Context {
  * @param preferredProtocol Single preferred protocol to use.
  * If not specified, defaults to [Protocol.Any].
  */
-fun Context.connect(reader: String, shareMode: ShareMode, preferredProtocol: Protocol = Protocol.Any) : Card
-        = connect(reader, shareMode, setOf(preferredProtocol))
+fun Context.connect(
+    reader: String,
+    shareMode: ShareMode,
+    preferredProtocol: Protocol = Protocol.Any,
+): Card = connect(reader, shareMode, setOf(preferredProtocol))
 
 /**
  * Waits for status changes in a single reader.
@@ -121,8 +131,10 @@ fun Context.connect(reader: String, shareMode: ShareMode, preferredProtocol: Pro
  *
  * @param timeout Number of seconds to wait. To wait for a long time, use [LONG_TIMEOUT].
  */
-suspend fun Context.getStatusChange(timeout: Int, reader: ReaderState)
-    = getStatusChange(timeout, listOf(reader)).first()
+suspend fun Context.getStatusChange(
+    timeout: Int,
+    reader: ReaderState,
+) = getStatusChange(timeout, listOf(reader)).first()
 
 /**
  * Gets the current state of the given readers, and returns immediately.
@@ -131,9 +143,10 @@ suspend fun Context.getStatusChange(timeout: Int, reader: ReaderState)
  *
  * @see [Context.getStatusChange]
  */
-fun Context.getStatus(readers: List<String>) : List<ReaderState> = runBlocking {
-    getStatusChange(0, readers.map { ReaderState(it) })
-}
+fun Context.getStatus(readers: List<String>): List<ReaderState> =
+    runBlocking {
+        getStatusChange(0, readers.map { ReaderState(it) })
+    }
 
 /**
  * Gets the current state of a single reader, and returns immediately.
@@ -142,8 +155,7 @@ fun Context.getStatus(readers: List<String>) : List<ReaderState> = runBlocking {
  *
  * @see [Context.getStatusChange]
  */
-fun Context.getStatus(reader: String): ReaderState
-        = getStatus(listOf(reader)).first()
+fun Context.getStatus(reader: String): ReaderState = getStatus(listOf(reader)).first()
 
 /**
  * Gets the status of all connected readers.
@@ -152,5 +164,5 @@ fun Context.getStatus(reader: String): ReaderState
  * @returns [List] of all connected readers
  * @see [Context.getStatus], [Context.listReaders]
  */
-fun Context.getAllReaderStatus(groups: List<String>? = null): List<ReaderState>
-        = listReaders(groups).takeUnless { it.isEmpty() }?.let(::getStatus).orEmpty()
+fun Context.getAllReaderStatus(groups: List<String>? = null): List<ReaderState> =
+    listReaders(groups).takeUnless { it.isEmpty() }?.let(::getStatus).orEmpty()

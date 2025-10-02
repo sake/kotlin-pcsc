@@ -22,7 +22,8 @@ class PCSCError private constructor(
     /** Error code */
     val code: Long,
     /** Canonical enumeration for this error condition */
-    val error: PCSCErrorCode?) : Throwable() {
+    val error: PCSCErrorCode?,
+) : Throwable() {
     internal constructor(error: PCSCErrorCode) : this(error.code, error)
 
     /** A human-readable error message, with description */
@@ -33,16 +34,16 @@ class PCSCError private constructor(
 
     companion object {
         /** Converts a numeric error code to a [PCSCError] */
-        internal fun fromCode(errorCode: Long) = PCSCErrorCode.entries.find {
-            it.code == errorCode
-        }?.let { PCSCError(it) } ?: PCSCError(errorCode, null)
+        internal fun fromCode(errorCode: Long) =
+            PCSCErrorCode.entries
+                .find {
+                    it.code == errorCode
+                }?.let { PCSCError(it) } ?: PCSCError(errorCode, null)
 
         @kotlin.ExperimentalUnsignedTypes
-        internal fun fromCode(errorCode: Int) =
-            fromCode(errorCode.toUInt().toLong())
+        internal fun fromCode(errorCode: Int) = fromCode(errorCode.toUInt().toLong())
 
         @kotlin.ExperimentalUnsignedTypes
-        internal fun fromCode(errorCode: UInt) =
-            fromCode(errorCode.toLong())
+        internal fun fromCode(errorCode: UInt) = fromCode(errorCode.toLong())
     }
 }

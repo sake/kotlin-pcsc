@@ -18,15 +18,44 @@
  */
 package au.id.micolous.kotlin.pcsc
 
-import au.id.micolous.kotlin.pcsc.internal.*
-import au.id.micolous.kotlin.pcsc.native.*
-import kotlinx.cinterop.*
-import platform.posix.*
+import au.id.micolous.kotlin.pcsc.internal.DWORD
+import au.id.micolous.kotlin.pcsc.internal.DWORDVar
+import au.id.micolous.kotlin.pcsc.internal.MAX_BUFFER_SIZE
+import au.id.micolous.kotlin.pcsc.internal.SCARDHANDLE
+import au.id.micolous.kotlin.pcsc.internal.SCARD_ABSENT
+import au.id.micolous.kotlin.pcsc.internal.SCARD_E_INSUFFICIENT_BUFFER
+import au.id.micolous.kotlin.pcsc.internal.SCARD_E_UNEXPECTED
+import au.id.micolous.kotlin.pcsc.internal.SCARD_NEGOTIABLE
+import au.id.micolous.kotlin.pcsc.internal.SCARD_PCI_RAW
+import au.id.micolous.kotlin.pcsc.internal.SCARD_PCI_T0
+import au.id.micolous.kotlin.pcsc.internal.SCARD_PCI_T1
+import au.id.micolous.kotlin.pcsc.internal.SCARD_POWERED
+import au.id.micolous.kotlin.pcsc.internal.SCARD_PRESENT
+import au.id.micolous.kotlin.pcsc.internal.SCARD_SPECIFIC
+import au.id.micolous.kotlin.pcsc.internal.SCARD_SWALLOWED
+import au.id.micolous.kotlin.pcsc.internal.SCARD_UNKNOWN
+import au.id.micolous.kotlin.pcsc.internal.SCardBeginTransaction
+import au.id.micolous.kotlin.pcsc.internal.SCardControl132
+import au.id.micolous.kotlin.pcsc.internal.SCardDisconnect
+import au.id.micolous.kotlin.pcsc.internal.SCardEndTransaction
+import au.id.micolous.kotlin.pcsc.internal.SCardGetAttrib
+import au.id.micolous.kotlin.pcsc.internal.SCardReconnect
+import au.id.micolous.kotlin.pcsc.internal.SCardStatus
+import au.id.micolous.kotlin.pcsc.internal.SCardTransmit
+import au.id.micolous.kotlin.pcsc.internal.toMultiString
+import au.id.micolous.kotlin.pcsc.native.wrapPCSCErrors
+import kotlinx.cinterop.addressOf
+import kotlinx.cinterop.alloc
+import kotlinx.cinterop.convert
+import kotlinx.cinterop.memScoped
+import kotlinx.cinterop.ptr
+import kotlinx.cinterop.usePinned
+import kotlinx.cinterop.value
 
 actual class Card internal constructor(
     private val handle: SCARDHANDLE,
-    actual var protocol: Protocol?) {
-
+    actual var protocol: Protocol?,
+) {
     // SCardDisconnect
     actual fun disconnect(disposition: DisconnectDisposition) {
         wrapPCSCErrors {
@@ -36,45 +65,63 @@ actual class Card internal constructor(
     }
 
     // SCardReconnect
-    actual fun reconnect(shareMode: ShareMode, preferredProtcols: Set<Protocol>?, initialization: Initialization) {
+    actual fun reconnect(
+        shareMode: ShareMode,
+        preferredProtcols: Set<Protocol>?,
+        initialization: Initialization,
+    ) {
         val protocolMask: DWORD = preferredProtcols?.toDWord() ?: 0u
 
-        protocol = memScoped {
-            val dwActiveProtocol = alloc<DWORDVar>()
+        protocol =
+            memScoped {
+                val dwActiveProtocol = alloc<DWORDVar>()
 
-            wrapPCSCErrors {
-                SCardReconnect(handle, shareMode.v, protocolMask, initialization.v, dwActiveProtocol.ptr)
+                wrapPCSCErrors {
+                    SCardReconnect(handle, shareMode.v, protocolMask, initialization.v, dwActiveProtocol.ptr)
+                }
+
+                dwActiveProtocol.value.toProtocol()
             }
-
-            dwActiveProtocol.value.toProtocol()
-        }
     }
 
     // SCardTransmit
-    actual fun transmit(buffer: ByteArray) : ByteArray {
+    actual fun transmit(buffer: ByteArray): ByteArray {
         // Copy the send buffer to insulate it from the library.
         val mySendBuffer = buffer.toUByteArray()
         val cbSendLength: DWORD = mySendBuffer.size.convert()
 
-        val pioSendPci = when (protocol) {
-            Protocol.T0 -> SCARD_PCI_T0
-            Protocol.T1 -> SCARD_PCI_T1
-            Protocol.Raw -> SCARD_PCI_RAW
-            // TODO: Implement other protocols
-            else -> throw NotImplementedError("Protocol $protocol")
+        val pioSendPci =
+            when (protocol) {
+                Protocol.T0 -> SCARD_PCI_T0
+                Protocol.T1 -> SCARD_PCI_T1
+                Protocol.Raw -> SCARD_PCI_RAW
+                // TODO: Implement other protocols
+                else -> throw NotImplementedError("Protocol $protocol")
+            }
+
+        return memScoped {
+            mySendBuffer.usePinned { pbSendBuffer ->
+                val bRecvBuffer = UByteArray(MAX_BUFFER_SIZE)
+                val pcbRecvLength = alloc<DWORDVar>()
+                pcbRecvLength.value = bRecvBuffer.size.convert()
+
+                bRecvBuffer.usePinned { pbRecvBuffer ->
+                    wrapPCSCErrors {
+                        SCardTransmit(
+                            handle,
+                            pioSendPci,
+                            pbSendBuffer.addressOf(0),
+                            cbSendLength,
+                            null,
+                            pbRecvBuffer.addressOf(0),
+                            pcbRecvLength.ptr,
+                        )
+                    }
+                }
+
+                bRecvBuffer.sliceArray(0..pcbRecvLength.value.toInt()).toByteArray()
+            }
         }
-
-        return memScoped { mySendBuffer.usePinned { pbSendBuffer ->
-            val bRecvBuffer = UByteArray(MAX_BUFFER_SIZE)
-            val pcbRecvLength = alloc<DWORDVar>()
-            pcbRecvLength.value = bRecvBuffer.size.convert()
-
-            bRecvBuffer.usePinned { pbRecvBuffer -> wrapPCSCErrors {
-                SCardTransmit(handle, pioSendPci, pbSendBuffer.addressOf(0), cbSendLength, null, pbRecvBuffer.addressOf(0), pcbRecvLength.ptr)
-            }}
-
-            bRecvBuffer.sliceArray(0..pcbRecvLength.value.toInt()).toByteArray()
-        }}
     }
 
     // SCardBeginTransaction
@@ -92,8 +139,8 @@ actual class Card internal constructor(
     }
 
     // SCardStatus
-    actual fun status(): CardStatus {
-        return memScoped {
+    actual fun status(): CardStatus =
+        memScoped {
             val pcchReaderLen = alloc<DWORDVar>()
             val pcbAtrLen = alloc<DWORDVar>()
 
@@ -108,19 +155,21 @@ actual class Card internal constructor(
             val pdwState = alloc<DWORDVar>()
             val pdwProtocol = alloc<DWORDVar>()
 
-            readerNames.useNullablePinned { mszReaderNames -> atr.useNullablePinned { pbAtr ->
-                wrapPCSCErrors {
-                    SCardStatus(
-                        handle,
-                        mszReaderNames?.addressOf(0),
-                        pcchReaderLen.ptr,
-                        pdwState.ptr,
-                        pdwProtocol.ptr,
-                        pbAtr?.addressOf(0),
-                        pcbAtrLen.ptr
-                    )
+            readerNames.useNullablePinned { mszReaderNames ->
+                atr.useNullablePinned { pbAtr ->
+                    wrapPCSCErrors {
+                        SCardStatus(
+                            handle,
+                            mszReaderNames?.addressOf(0),
+                            pcchReaderLen.ptr,
+                            pdwState.ptr,
+                            pdwProtocol.ptr,
+                            pbAtr?.addressOf(0),
+                            pcbAtrLen.ptr,
+                        )
+                    }
                 }
-            }}
+            }
 
             val state = pdwState.value
             CardStatus(
@@ -132,16 +181,19 @@ actual class Card internal constructor(
                 present = state.hasBits(SCARD_PRESENT.convert()),
                 swallowed = state.hasBits(SCARD_SWALLOWED.convert()),
                 powered = state.hasBits(SCARD_POWERED.convert()),
-                negotiable = state.hasBits(SCARD_NEGOTIABLE.convert()) ,
+                negotiable = state.hasBits(SCARD_NEGOTIABLE.convert()),
                 specific = state.hasBits(SCARD_SPECIFIC.convert()),
                 protocol = pdwProtocol.value.toProtocol(),
-                atr = atr?.toByteArray() ?: ByteArray(0)
+                atr = atr?.toByteArray() ?: ByteArray(0),
             )
         }
-    }
 
     // SCardControl
-    actual fun control(controlCode: Long, sendBuffer: ByteArray?, recvBufferSize: Int): ByteArray? {
+    actual fun control(
+        controlCode: Long,
+        sendBuffer: ByteArray?,
+        recvBufferSize: Int,
+    ): ByteArray? {
         require(recvBufferSize >= 0) { "recvBufferSize must be >= 0" }
         val bSendBuffer = sendBuffer?.toUByteArray()
         val cbSendLength: DWORD = (bSendBuffer?.size ?: 0).convert()
@@ -152,17 +204,19 @@ actual class Card internal constructor(
             val lpBytesReturned = alloc<DWORDVar>()
 
             sendBuffer.useNullablePinned { pbSendBuffer ->
-                bRecvBuffer.useNullablePinned { pbRecvBuffer -> wrapPCSCErrors {
-                    SCardControl132(
-                        handle,
-                        controlCode.convert<DWORD>(),
-                        pbSendBuffer?.addressOf(0),
-                        cbSendLength,
-                        pbRecvBuffer?.addressOf(0),
-                        cbRecvLength,
-                        lpBytesReturned.ptr
-                    )
-                }}
+                bRecvBuffer.useNullablePinned { pbRecvBuffer ->
+                    wrapPCSCErrors {
+                        SCardControl132(
+                            handle,
+                            controlCode.convert<DWORD>(),
+                            pbSendBuffer?.addressOf(0),
+                            cbSendLength,
+                            pbRecvBuffer?.addressOf(0),
+                            cbRecvLength,
+                            lpBytesReturned.ptr,
+                        )
+                    }
+                }
             }
 
             bRecvBuffer?.sliceArray(0 until lpBytesReturned.value.toInt())?.toByteArray()
@@ -170,14 +224,15 @@ actual class Card internal constructor(
     }
 
     // SCardGetAttrib
-    actual fun getAttrib(attribute: Long) : ByteArray? {
+    actual fun getAttrib(attribute: Long): ByteArray? {
         val dwAttrId: DWORD = attribute.convert()
         return memScoped {
             // Figure out how much space we need for the buffer, and if the attribute is supported
             val pcbAttrLen = alloc<DWORDVar>()
             if (!wrapPCSCErrors(falseValue = SCARD_E_UNEXPECTED) {
-                SCardGetAttrib(handle, dwAttrId, null, pcbAttrLen.ptr)
-            }) {
+                    SCardGetAttrib(handle, dwAttrId, null, pcbAttrLen.ptr)
+                }
+            ) {
                 // Unsupported function
                 return null
             }
@@ -189,12 +244,13 @@ actual class Card internal constructor(
             }
 
             val bAttr = UByteArray(neededLength)
-            bAttr.usePinned { pbAttr -> wrapPCSCErrors {
-                SCardGetAttrib(handle, dwAttrId, pbAttr.addressOf(0), pcbAttrLen.ptr)
-            }}
+            bAttr.usePinned { pbAttr ->
+                wrapPCSCErrors {
+                    SCardGetAttrib(handle, dwAttrId, pbAttr.addressOf(0), pcbAttrLen.ptr)
+                }
+            }
 
             bAttr.sliceArray(0 until pcbAttrLen.value.toInt()).toByteArray()
         }
     }
-
 }

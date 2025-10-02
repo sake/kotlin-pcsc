@@ -18,15 +18,16 @@
  */
 package au.id.micolous.kotlin.pcsc.jna
 
-import au.id.micolous.kotlin.pcsc.*
+import au.id.micolous.kotlin.pcsc.PCSCError
+import au.id.micolous.kotlin.pcsc.PCSCErrorCode
 
 internal fun wrapPCSCErrors(
     trueValue: PCSCErrorCode = PCSCErrorCode.S_SUCCESS,
     falseValue: PCSCErrorCode? = null,
-    f: () -> SCardResult): Boolean {
-    return when (val errorCode = f().toLong()) {
+    f: () -> SCardResult,
+): Boolean =
+    when (val errorCode = f().toLong()) {
         trueValue.code -> true
         falseValue?.code -> false
         else -> throw PCSCError.fromCode(errorCode)
     }
-}
