@@ -17,6 +17,7 @@ project.properties
 xcuserdata/
 
 .gradle
+.kotlin/
 
 *.keystore
 .~lock*

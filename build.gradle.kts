@@ -1,10 +1,8 @@
-import org.jetbrains.dokka.gradle.DokkaTask
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJvmCompilation
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeCompilation
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
-    kotlin("multiplatform") version "1.5.31"
-    id("org.jetbrains.dokka") version "1.5.30"
+    kotlin("multiplatform") version "2.2.20"
+    id("org.jetbrains.dokka") version "2.0.0"
     id("maven-publish")
 }
 
@@ -12,118 +10,100 @@ repositories {
     mavenCentral()
 }
 
-val coroutinesVer = "1.5.2"
+val coroutinesVer = "1.10.2"
 
-dependencies {
-    commonMainApi(kotlin("stdlib-common"))
-    commonMainImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVer")
-    commonTestImplementation(kotlin("test-common"))
-    commonTestImplementation(kotlin("test-annotations-common"))
+//dependencies {
+//    commonMainApi(kotlin("stdlib-common"))
+//    commonMainImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVer")
+//    commonTestImplementation(kotlin("test-common"))
+//    commonTestImplementation(kotlin("test-annotations-common"))
+//}
+
+private fun KotlinNativeTarget.withCinterop() {
+    compilations.getByName("main") {
+        cinterops {
+            create("winscard")
+        }
+    }
 }
 
-group = "au.id.micolous.kotlin.pcsc"
-version = "0.0.1"
-
 kotlin {
-    // linuxArm32Hfp()  // Raspberry Pi
-    linuxX64()
-    macosX64()  // (no cross compiler)
-    mingwX64()  // Windows (no cross compiler)
+    applyDefaultHierarchyTemplate()
 
-    jvm("jna")
+    jvm()
+
+    val hostOs = System.getProperty("os.name")
+    val isArm64 = System.getProperty("os.arch") == "aarch64"
+    when {
+        hostOs == "Mac OS X" -> {
+            macosArm64 {
+                withCinterop()
+            }
+            macosX64 {
+                withCinterop()
+            }
+        }
+
+        hostOs == "Linux" -> {
+            linuxArm64 {
+                withCinterop()
+            }
+            linuxX64 {
+                withCinterop()
+            }
+        }
+
+        hostOs.startsWith("Windows") -> {
+            mingwX64() {
+                withCinterop()
+            }
+        }
+
+        else -> throw GradleException("Host OS is not supported in Kotlin/Native.")
+    }
+
 
     sourceSets {
-        val commonMain by getting {}
-        val commonTest by getting {}
-
-        val nativeMain by creating {}
-        val nativeMacosMain by creating {
-            dependsOn(nativeMain)
+        commonMain.dependencies {
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVer")
         }
-        val nativeWindowsMain by creating {
-            dependsOn(nativeMain)
+        commonTest.dependencies {
+            implementation(kotlin("test"))
         }
 
-        // Setup common dependencies
-        targets.forEach {
-            val macTarget = it.preset?.name?.startsWith("macos") ?: false
-            val winTarget = it.preset?.name?.startsWith("mingw") ?: false
-
-            it.compilations.forEach { compilation ->
-                when (compilation.name) {
-                    "main" -> compilation.apply {
-                        defaultSourceSet {
-                            if (this != commonMain) {
-                                dependsOn(commonMain)
-                            }
-                        }
-
-                        when (this) {
-                            is KotlinJvmCompilation -> // Java
-                                dependencies {
-                                    api("net.java.dev.jna:jna:5.9.0")
-                                }
-
-                            is KotlinNativeCompilation -> { // Native
-                                defaultSourceSet {
-                                    dependsOn(
-                                        when {
-                                            macTarget -> nativeMacosMain
-                                            winTarget -> nativeWindowsMain
-                                            else -> nativeMain
-                                        }
-                                    )
-                                }
-
-                                cinterops {
-                                    create("winscard")
-                                }
-                            }
-                        }
-                    }
-
-
-                    "test" -> compilation.apply {
-                        defaultSourceSet {
-                            dependsOn(commonTest)
-                        }
-
-                        if (this is KotlinJvmCompilation) {
-                            // common
-                            dependencies {
-                                implementation(kotlin("test-junit"))
-                            }
-                        }
-                    }
-                }
-            }
+        jvmMain.dependencies {
+            api("net.java.dev.jna:jna:5.9.0")
+        }
+        jvmTest.dependencies {
         }
     }
 
     sourceSets.all {
-        languageSettings.optIn("kotlin.ExperimentalStdlibApi")
+        //languageSettings.optIn("kotlin.ExperimentalStdlibApi")
+        languageSettings.optIn("kotlinx.cinterop.ExperimentalForeignApi")
+        languageSettings.optIn("kotlin.experimental.ExperimentalNativeApi")
     }
 }
+
+tasks.withType<Test> {
+    useJUnitPlatform { }
+}
+
 
 publishing {
-    publications {
-        val kotlinMultiplatform by getting {
-        //    artifactId = "kotlin-pcsc"
-        }
-    }
+//    publications {
+//    }
 }
 
-tasks.withType<DokkaTask>().configureEach {
-    outputDirectory.set(buildDir.resolve("dokka"))
-
+dokka {
     dokkaSourceSets {
-        named("commonMain") {
-            includeNonPublic.set(false)
+        commonMain {
+            //includeNonPublic.set(false)
             reportUndocumented.set(true)
             skipEmptyPackages.set(true)
             includes.from("src/module.md")
-            sourceRoot(kotlin.sourceSets.getByName("commonMain").kotlin.srcDirs.first())
-            platform.set(org.jetbrains.dokka.Platform.common)
+            //sourceRoot(kotlin.sourceSets.getByName("commonMain").kotlin.srcDirs.first())
+            //platform.set(org.jetbrains.dokka.Platform.common)
             perPackageOption {
                 matchingRegex.set("au\\.id\\.micolous\\.kotlin\\.pcsc\\.(jna|internal|native)(\$|\\\\.).*")
                 suppress.set(true)
