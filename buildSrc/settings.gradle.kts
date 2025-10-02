@@ -1,6 +1,5 @@
 dependencyResolutionManagement {
     repositories {
-        google()
         gradlePluginPortal()
         mavenCentral()
     }
@@ -10,9 +9,4 @@ dependencyResolutionManagement {
             from(files("../gradle/libs.versions.toml"))
         }
     }
-}
-
-plugins {
-    // apply toolchain plugin, version comes from root project
-    id("org.gradle.toolchains.foojay-resolver-convention")
 }
