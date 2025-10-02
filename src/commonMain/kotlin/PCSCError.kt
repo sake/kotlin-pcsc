@@ -33,7 +33,7 @@ class PCSCError private constructor(
 
     companion object {
         /** Converts a numeric error code to a [PCSCError] */
-        internal fun fromCode(errorCode: Long) = PCSCErrorCode.values().find {
+        internal fun fromCode(errorCode: Long) = PCSCErrorCode.entries.find {
             it.code == errorCode
         }?.let { PCSCError(it) } ?: PCSCError(errorCode, null)
 
