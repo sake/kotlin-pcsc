@@ -71,6 +71,11 @@ kotlin {
         languageSettings.optIn("kotlinx.cinterop.ExperimentalForeignApi")
         languageSettings.optIn("kotlin.experimental.ExperimentalNativeApi")
     }
+    compilerOptions {
+        // suppress warnings for actual object implementations
+        // https://youtrack.jetbrains.com/issue/KT-61573
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
 }
 
 tasks.withType<Test> {
