@@ -18,7 +18,7 @@
  */
 package au.id.micolous.kotlin.pcsc
 
-data class PCSCError private constructor(
+class PCSCError private constructor(
     /** Error code */
     val code: Long,
     /** Canonical enumeration for this error condition */

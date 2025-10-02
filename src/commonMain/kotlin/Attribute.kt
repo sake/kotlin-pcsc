@@ -82,7 +82,7 @@ enum class Attribute(
 /**
  * Represents a version number, given in response to a [Attribute.VendorIfdVersion] request.
  */
-data class Version internal constructor(
+class Version internal constructor(
     /** The major version number. */
     val major: Int,
     /** The minor version number. */
@@ -110,7 +110,7 @@ data class Version internal constructor(
 /**
  * Describes the mechanical characteristics of a card reader.
  */
-data class MechanicalCharacteristics internal constructor(private val c: Long) {
+class MechanicalCharacteristics internal constructor(private val c: Long) {
     private fun hasBits(bits: Long) = (c and bits) == bits
 
     /** Reader has a card swallowing mechanism */

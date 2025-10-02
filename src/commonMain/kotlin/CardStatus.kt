@@ -35,7 +35,7 @@ package au.id.micolous.kotlin.pcsc
  * See [pcsclite's API differences](https://pcsclite.apdu.fr/api/group__API.html#differences) for
  * more details.
  */
-data class CardStatus internal constructor(
+class CardStatus internal constructor(
     /**
      * Name(s) of the reader. On Windows, this may be multiple names.
      */
