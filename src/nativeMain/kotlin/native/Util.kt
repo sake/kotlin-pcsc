@@ -48,8 +48,8 @@ internal fun maybeByteArray(length: Int): ByteArray? {
     }
 }
 
-internal inline fun maybeByteArray(length: DWORD) = maybeByteArray(length.toInt())
-internal inline fun maybeByteArray(length: DWORDVar) = maybeByteArray(length.value.toInt())
+internal fun maybeByteArray(length: DWORD) = maybeByteArray(length.toInt())
+internal fun maybeByteArray(length: DWORDVar) = maybeByteArray(length.value.toInt())
 
 /**
  * Creates a new [UByteArray], or returns `null` if [length] is 0.
@@ -62,5 +62,5 @@ internal fun maybeUByteArray(length: Int): UByteArray? {
     }
 }
 
-internal inline fun maybeUByteArray(length: DWORD) = maybeUByteArray(length.toInt())
-internal inline fun maybeUByteArray(length: DWORDVar) = maybeUByteArray(length.value.toInt())
+internal fun maybeUByteArray(length: DWORD) = maybeUByteArray(length.toInt())
+internal fun maybeUByteArray(length: DWORDVar) = maybeUByteArray(length.value.toInt())
