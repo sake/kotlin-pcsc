@@ -1,23 +1,11 @@
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
-    kotlin("multiplatform") version "2.2.20"
-    id("org.jetbrains.dokka") version "2.0.0"
+    kotlin("multiplatform")
+    alias(libs.plugins.dokka)
     id("maven-publish")
 }
 
-repositories {
-    mavenCentral()
-}
-
-val coroutinesVer = "1.10.2"
-
-//dependencies {
-//    commonMainApi(kotlin("stdlib-common"))
-//    commonMainImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVer")
-//    commonTestImplementation(kotlin("test-common"))
-//    commonTestImplementation(kotlin("test-annotations-common"))
-//}
 
 private fun KotlinNativeTarget.withCinterop() {
     compilations.getByName("main") {
@@ -33,7 +21,7 @@ kotlin {
     jvm()
 
     val hostOs = System.getProperty("os.name")
-    val isArm64 = System.getProperty("os.arch") == "aarch64"
+    //val isArm64 = System.getProperty("os.arch") == "aarch64"
     when {
         hostOs == "Mac OS X" -> {
             macosArm64 {
@@ -65,14 +53,14 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVer")
+            implementation(libs.kotlin.coroutines.core)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
         }
 
         jvmMain.dependencies {
-            api("net.java.dev.jna:jna:5.9.0")
+            api(libs.jna)
         }
         jvmTest.dependencies {
         }

@@ -1,0 +1,17 @@
+[versions]
+kotlin = "2.2.20"
+dokka = "2.0.0"
+kx-co = "1.10.+"
+
+jna = "5.9.0"
+
+[libraries]
+kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
+
+kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kx-co" }
+
+jna = { module = "net.java.dev.jna:jna", version.ref = "jna" }
+
+[plugins]
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
