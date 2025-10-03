@@ -27,3 +27,6 @@ internal val DWORD_ZERO = 0.convert<DWORD>()
 
 @Suppress("NOTHING_TO_INLINE")
 internal inline fun DWORD.hasBits(mask: DWORD) = (this and mask) == mask
+
+@OptIn(ExperimentalUnsignedTypes::class)
+internal fun orDWORD(vararg values: DWORD): DWORD = values.fold(0u) { v1, v2 -> v1 or v2 }

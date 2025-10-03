@@ -42,7 +42,7 @@ private fun State.toDword() =
     if (ignore) {
         SCARD_STATE_IGNORE.convert()
     } else {
-        orULongs(
+        orDWORD(
             DWORD_ZERO,
             if (changed) SCARD_STATE_CHANGED.convert() else DWORD_ZERO,
             if (unknown) SCARD_STATE_UNKNOWN.convert() else DWORD_ZERO,

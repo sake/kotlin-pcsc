@@ -11,6 +11,9 @@ private fun KotlinNativeTarget.withCinterop() {
         cinterops {
             create("winscard")
         }
+        defaultSourceSet {
+            kotlin.srcDirs(layout.projectDirectory.dir("src/sharedNativeMain/kotlin"))
+        }
     }
 }
 
@@ -19,34 +22,22 @@ kotlin {
 
     jvm()
 
-    val hostOs = System.getProperty("os.name")
-    // val isArm64 = System.getProperty("os.arch") == "aarch64"
-    when {
-        hostOs == "Mac OS X" -> {
-            macosArm64 {
-                withCinterop()
-            }
-            macosX64 {
-                withCinterop()
-            }
-        }
+    macosArm64 {
+        withCinterop()
+    }
+    macosX64 {
+        withCinterop()
+    }
 
-        hostOs == "Linux" -> {
-            linuxArm64 {
-                withCinterop()
-            }
-            linuxX64 {
-                withCinterop()
-            }
-        }
+    linuxArm64 {
+        withCinterop()
+    }
+    linuxX64 {
+        withCinterop()
+    }
 
-        hostOs.startsWith("Windows") -> {
-            mingwX64 {
-                withCinterop()
-            }
-        }
-
-        else -> throw GradleException("Host OS is not supported in Kotlin/Native.")
+    mingwX64 {
+        withCinterop()
     }
 
     sourceSets {

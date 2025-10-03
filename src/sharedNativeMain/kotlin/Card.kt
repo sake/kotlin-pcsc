@@ -47,6 +47,7 @@ import au.id.micolous.kotlin.pcsc.native.wrapPCSCErrors
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.alloc
 import kotlinx.cinterop.convert
+import kotlinx.cinterop.invoke
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.usePinned

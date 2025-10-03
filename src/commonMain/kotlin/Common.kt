@@ -56,7 +56,4 @@ internal inline fun Int.hasBits(mask: Int) = (this and mask) == mask
 internal inline fun Long.hasBits(mask: Long) = (this and mask) == mask
 
 @OptIn(ExperimentalUnsignedTypes::class)
-internal fun orULongs(vararg values: ULong): ULong = values.fold(0u) { v1, v2 -> v1 or v2 }
-
-@OptIn(ExperimentalUnsignedTypes::class)
 internal fun orLongs(vararg values: Long): Long = values.fold(0) { v1, v2 -> v1 or v2 }

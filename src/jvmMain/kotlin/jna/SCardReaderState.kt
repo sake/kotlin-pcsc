@@ -22,7 +22,6 @@ import au.id.micolous.kotlin.pcsc.ReaderState
 import au.id.micolous.kotlin.pcsc.State
 import au.id.micolous.kotlin.pcsc.hasBits
 import au.id.micolous.kotlin.pcsc.orLongs
-import au.id.micolous.kotlin.pcsc.orULongs
 import com.sun.jna.Platform
 import com.sun.jna.Pointer
 import com.sun.jna.Structure
