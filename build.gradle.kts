@@ -6,10 +6,15 @@ plugins {
     id("maven-publish")
 }
 
-private fun KotlinNativeTarget.withCinterop() {
+private fun KotlinNativeTarget.withCinterop(withIncludes: Boolean = false) {
     compilations.getByName("main") {
         cinterops {
-            create("winscard")
+            val winscard by creating {
+                if (withIncludes) {
+                    includeDirs.allHeaders(layout.projectDirectory.dir("src/nativeInterop/cinterop/include"))
+                    includeDirs.allHeaders(layout.projectDirectory.dir("src/nativeInterop/cinterop/include/PCSC"))
+                }
+            }
         }
         defaultSourceSet {
             kotlin.srcDirs(layout.projectDirectory.dir("src/sharedNativeMain/kotlin"))
@@ -30,10 +35,10 @@ kotlin {
     }
 
     linuxArm64 {
-        withCinterop()
+        withCinterop(true)
     }
     linuxX64 {
-        withCinterop()
+        withCinterop(true)
     }
 
     mingwX64 {

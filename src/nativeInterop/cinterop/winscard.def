@@ -8,9 +8,9 @@ linkerOpts.osx = -framework PCSC
 
 # Other platforms work nicer...
 headers.linux = PCSC/wintypes.h PCSC/pcsclite.h PCSC/reader.h PCSC/winscard.h
-compilerOpts.linux_x64 = -pthread -I/usr/include/PCSC -I/usr/include -I/usr/include/x86_64-linux-gnu
+compilerOpts.linux_x64 = -pthread
 linkerOpts.linux_x64 = -L/usr/lib64 -L/usr/lib/x86_64-linux-gnu -lpcsclite --allow-shlib-undefined
-compilerOpts.linux_arm64 = -pthread -I/usr/include/PCSC -I/usr/include -I/usr/include/aarch64-linux-gnu
+compilerOpts.linux_arm64 = -pthread
 linkerOpts.linux_arm64 = -L/usr/lib64 -L/usr/lib/aarch64-linux-gnu -lpcsclite --allow-shlib-undefined
 headerFilter.linux = PCSC/**
 
