@@ -66,7 +66,8 @@ actual enum class Protocol(
     Undefined(SCARD_PROTOCOL_UNDEFINED.convert<DWORD>()),
 }
 
-internal fun DWORD.toProtocol(): Protocol? = Protocol.entries.find { it.v == this }
+internal fun DWORD.toProtocol(): Protocol =
+    Protocol.entries.find { it.v == this } ?: throw PCSCError(PCSCErrorCode.F_INTERNAL_ERROR)
 
 internal fun Set<Protocol>.toDWord(): DWORD = map { it.v }.reduce { acc, it -> acc or it }
 

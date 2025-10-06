@@ -32,14 +32,13 @@ import java.nio.ByteBuffer
 
 actual class Card internal constructor(
     private val handle: SCardHandle,
-    actual var protocol: Protocol?,
+    actual var protocol: Protocol,
 ) {
     // SCardDisconnect
     actual fun disconnect(disposition: DisconnectDisposition) {
         wrapPCSCErrors {
             LIB.value.SCardDisconnect(handle, disposition.v)
         }
-        protocol = null
     }
 
     // SCardReconnect

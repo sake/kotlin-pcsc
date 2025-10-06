@@ -55,14 +55,13 @@ import kotlinx.cinterop.value
 
 actual class Card internal constructor(
     private val handle: SCARDHANDLE,
-    actual var protocol: Protocol?,
+    actual var protocol: Protocol,
 ) {
     // SCardDisconnect
     actual fun disconnect(disposition: DisconnectDisposition) {
         wrapPCSCErrors {
             SCardDisconnect(handle, disposition.v)
         }
-        protocol = null
     }
 
     // SCardReconnect

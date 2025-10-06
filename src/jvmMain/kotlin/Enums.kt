@@ -61,7 +61,8 @@ actual enum class Protocol(
     Undefined(0),
 }
 
-internal fun Long.toProtocol(): Protocol? = Protocol.values().find { it.v == this }
+internal fun Long.toProtocol(): Protocol =
+    Protocol.entries.find { it.v == this } ?: throw PCSCError(PCSCErrorCode.F_INTERNAL_ERROR)
 
 internal fun Set<Protocol>.toLong(): Long = map { it.v }.reduce { acc, it -> acc or it }
 

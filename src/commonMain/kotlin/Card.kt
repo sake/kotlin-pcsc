@@ -35,7 +35,7 @@ expect class Card {
      * @see [Context.connect]
      * @see [reconnect]
      */
-    var protocol: Protocol? get
+    var protocol: Protocol get
 
     /**
      * Disconnects from the given card.
