@@ -3,7 +3,7 @@ kotlin = "2.2.20"
 dokka = "2.0.0"
 kx-co = "1.10.+"
 
-jna = "5.9.0"
+jna = "5.18.1"
 
 maven-publish-vannitek = "0.34.0"
 
