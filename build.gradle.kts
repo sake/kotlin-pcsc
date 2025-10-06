@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
@@ -25,7 +26,11 @@ private fun KotlinNativeTarget.withCinterop(withIncludes: Boolean = false) {
 kotlin {
     applyDefaultHierarchyTemplate()
 
-    jvm()
+    jvm {
+        this.compilerOptions {
+            jvmTarget = JvmTarget.JVM_1_8
+        }
+    }
 
     macosArm64 {
         withCinterop()
