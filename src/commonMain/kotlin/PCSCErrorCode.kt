@@ -19,7 +19,7 @@
 package au.id.micolous.kotlin.pcsc
 
 /**
- * Enumeration to doscribe error states in the PC/SC API.
+ * Enumeration to describe error states in the PC/SC API.
  */
 enum class PCSCErrorCode(
     /** Numeric error code */
@@ -47,6 +47,9 @@ enum class PCSCErrorCode(
 
     /** `0x80100006`: Not enough memory available to complete this command */
     E_NO_MEMORY(0x80100006L, "Not enough memory available to complete this command"),
+
+    /** `0x80100033`: The smart card PIN cannot be cached */
+    E_NO_PIN_CACHE(0x80100033L, "The smart card PIN cannot be cached"),
 
     /** `0x80100007`: An internal consistency timer has expired */
     F_WAITED_TOO_LONG(0x80100007L, "An internal consistency timer has expired"),
@@ -78,6 +81,9 @@ enum class PCSCErrorCode(
         "The requested protocols are incompatible with the protocol currently in use with the smart card",
     ),
 
+    /** `0x80100034`: The smart card is read-only and cannot be written to */
+    E_READ_ONLY_CARD(0x80100034L, "The smart card is read-only and cannot be written to"),
+
     /** `0x80100010`: The reader or smart card is not ready to accept commands */
     E_NOT_READY(0x80100010L, "The reader or smart card is not ready to accept commands"),
 
@@ -107,6 +113,9 @@ enum class PCSCErrorCode(
 
     /** `0x80100019`: The PCI Receive buffer was too small */
     E_PCI_TOO_SMALL(0x80100019L, "The PCI Receive buffer was too small"),
+
+    /** `0x80100032`: The smart card PIN cache has expired */
+    E_PIN_CACHE_EXPIRED(0x80100032L, "The smart card PIN cache has expired"),
 
     /** `0x8010001A`: The reader driver does not meet minimal requirements for support */
     E_READER_UNSUPPORTED(0x8010001AL, "The reader driver does not meet minimal requirements for support"),
@@ -218,6 +227,15 @@ enum class PCSCErrorCode(
 
     /** `0x8010006E`: The user pressed "Cancel" on a Smart Card Selection Dialog */
     W_CANCELLED_BY_USER(0x8010006EL, "The user pressed \"Cancel\" on a Smart Card Selection Dialog"),
+
+    /** `0x80100070`: The requested item could not be found in the cache */
+    W_CACHE_ITEM_NOT_FOUND(0x80100070L, "The requested item could not be found in the cache"),
+
+    /** `0x80100071`: The requested cache item is too old and was deleted from the cache */
+    W_CACHE_ITEM_STALE(0x80100071L, "The requested cache item is too old and was deleted from the cache"),
+
+    /** `0x80100072`: The new cache item exceeds the maximum per-item size defined for the cache */
+    W_CACHE_ITEM_TOO_BIG(0x80100072L, "The new cache item exceeds the maximum per-item size defined for the cache"),
 
     /** `0x8010006F`: No PIN was presented to the smart card */
     W_CARD_NOT_AUTHENTICATED(0x8010006FL, "No PIN was presented to the smart card"),
