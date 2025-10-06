@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 plugins {
     kotlin("multiplatform")
     alias(libs.plugins.dokka)
-    id("maven-publish")
+    alias(libs.plugins.maven.publish.vannitek)
 }
 
 private fun KotlinNativeTarget.withCinterop(withIncludes: Boolean = false) {
@@ -45,6 +45,9 @@ kotlin {
         withCinterop()
     }
 
+    // make sure source jars are built
+    withSourcesJar(true)
+
     sourceSets {
         commonMain.dependencies {
             implementation(libs.kotlin.coroutines.core)
@@ -76,9 +79,39 @@ tasks.withType<Test> {
     useJUnitPlatform { }
 }
 
-publishing {
-//    publications {
-//    }
+mavenPublishing {
+    publishToMavenCentral()
+
+    signAllPublications()
+
+    pom {
+        name = "kotlin-pcsc"
+        description = "Kotlin wrapper for PC/SC (winscard) API"
+        inceptionYear = "2019"
+        url = "https://github.com/sake/kotlin-pcsc/"
+        licenses {
+            license {
+                name = "The Apache License, Version 2.0"
+                url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+                distribution = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+            }
+        }
+        developers {
+            developer {
+                id = "micolous"
+                name = "Michael Farrell"
+            }
+            developer {
+                id = "sake"
+                name = "Tobias Wich"
+            }
+        }
+        scm {
+            url = "https://github.com/sake/kotlin-pcsc/"
+            connection = "scm:git:git://github.com/sake/kotlin-pcsc.git"
+            developerConnection = "scm:git:ssh://git@github.com/sake/kotlin-pcsc.git"
+        }
+    }
 }
 
 dokka {

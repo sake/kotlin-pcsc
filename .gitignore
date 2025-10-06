@@ -9,6 +9,7 @@ classes/
 .DS_Store
 .idea
 local.properties
+.envrc
 *.iml
 *.iws
 projectFilesBackup/

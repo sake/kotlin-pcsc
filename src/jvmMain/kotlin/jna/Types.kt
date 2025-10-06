@@ -24,13 +24,13 @@ import com.sun.jna.NativeLong
 import com.sun.jna.Platform
 import com.sun.jna.ptr.ByReference
 
-val DWORD_SIZE =
+internal val DWORD_SIZE =
     if (Platform.isWindows() || Platform.isMac()) {
         4
     } else {
         NativeLong.SIZE
     }
-val HANDLE_SIZE =
+internal val HANDLE_SIZE =
     if (Platform.isWindows()) {
         Native.POINTER_SIZE
     } else {

@@ -5,6 +5,8 @@ kx-co = "1.10.+"
 
 jna = "5.9.0"
 
+maven-publish-vannitek = "0.34.0"
+
 [libraries]
 kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -15,3 +17,4 @@ jna = { module = "net.java.dev.jna:jna", version.ref = "jna" }
 
 [plugins]
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
+maven-publish-vannitek = { id = "com.vanniktech.maven.publish", version.ref = "maven-publish-vannitek" }
