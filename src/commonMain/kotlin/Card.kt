@@ -75,11 +75,16 @@ expect class Card {
      * The `pioSendPci` parameter is automatically populated based on [protocol].
      *
      * @param buffer APDU bytes to send to the card.
+     * @param maxResponseLength Supplies the length, in bytes, of the receive buffer and receives the actual number of
+     *   bytes received from the smart card. Defaults to short length responses.
      * @returns APDU bytes received from the card.
      * @throws NotImplementedError if [protocol] is not supported
      * @throws PCSCError
      */
-    fun transmit(buffer: ByteArray): ByteArray
+    fun transmit(
+        buffer: ByteArray,
+        maxResponseLength: Int = MAX_BUFFER_SIZE,
+    ): ByteArray
 
     /**
      * Starts a new transaction on the card.
@@ -143,6 +148,11 @@ expect class Card {
      * @throws PCSCError
      */
     fun getAttrib(attribute: Long): ByteArray?
+
+    companion object {
+        val MAX_BUFFER_SIZE: Int
+        val MAX_BUFFER_SIZE_EXTENDED: Int
+    }
 }
 
 /**

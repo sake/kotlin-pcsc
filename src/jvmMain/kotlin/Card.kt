@@ -64,14 +64,17 @@ actual class Card internal constructor(
     }
 
     // SCardTransmit
-    actual fun transmit(buffer: ByteArray): ByteArray {
+    actual fun transmit(
+        buffer: ByteArray,
+        maxResponseLength: Int,
+    ): ByteArray {
         // Copy the send buffer to insulate it from the library.
         val mySendBuffer = buffer.copyOf()
         val cbSendLength = Dword(mySendBuffer.size.toLong())
 
         val pioSendPci = SCardIoRequest.getForProtocol(protocol)
 
-        val pbRecvBuffer = ByteBuffer.allocateDirect(MAX_BUFFER_SIZE)!!
+        val pbRecvBuffer = ByteBuffer.allocateDirect(maxResponseLength)!!
         val pcbRecvLength = DwordByReference(Dword(pbRecvBuffer.limit().toLong()))
 
         wrapPCSCErrors {
@@ -215,5 +218,10 @@ actual class Card internal constructor(
             position(0)
             getByteArray(pcbAttrLen.value.toInt())
         }
+    }
+
+    actual companion object {
+        actual val MAX_BUFFER_SIZE: Int = au.id.micolous.kotlin.pcsc.jna.MAX_BUFFER_SIZE
+        actual val MAX_BUFFER_SIZE_EXTENDED: Int = au.id.micolous.kotlin.pcsc.jna.MAX_BUFFER_SIZE_EXTENDED
     }
 }

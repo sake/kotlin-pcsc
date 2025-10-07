@@ -32,6 +32,7 @@ internal val LIB_NAME =
     }
 
 internal const val MAX_BUFFER_SIZE = 264
+internal const val MAX_BUFFER_SIZE_EXTENDED	= (4 + 3 + (1 shl 16) + 3 + 2)
 
 // In SCARD_READERSTATE, Windows has 36 bytes for alignment; others have 33 bytes
 internal const val MAX_ATR_SIZE = 33

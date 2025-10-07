@@ -85,7 +85,10 @@ actual class Card internal constructor(
     }
 
     // SCardTransmit
-    actual fun transmit(buffer: ByteArray): ByteArray {
+    actual fun transmit(
+        buffer: ByteArray,
+        maxResponseLength: Int,
+    ): ByteArray {
         // Copy the send buffer to insulate it from the library.
         val mySendBuffer = buffer.toUByteArray()
         val cbSendLength: DWORD = mySendBuffer.size.convert()
@@ -101,7 +104,7 @@ actual class Card internal constructor(
 
         return memScoped {
             mySendBuffer.usePinned { pbSendBuffer ->
-                val bRecvBuffer = UByteArray(MAX_BUFFER_SIZE)
+                val bRecvBuffer = UByteArray(maxResponseLength)
                 val pcbRecvLength = alloc<DWORDVar>()
                 pcbRecvLength.value = bRecvBuffer.size.convert()
 
@@ -252,5 +255,10 @@ actual class Card internal constructor(
 
             bAttr.sliceArray(0 until pcbAttrLen.value.toInt()).toByteArray()
         }
+    }
+
+    actual companion object {
+        actual val MAX_BUFFER_SIZE: Int = au.id.micolous.kotlin.pcsc.internal.MAX_BUFFER_SIZE
+        actual val MAX_BUFFER_SIZE_EXTENDED: Int = au.id.micolous.kotlin.pcsc.internal.MAX_BUFFER_SIZE_EXTENDED
     }
 }
