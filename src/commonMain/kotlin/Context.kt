@@ -18,7 +18,12 @@
  */
 package au.id.micolous.kotlin.pcsc
 
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 
 /**
  * Main interface for PC/SC API operations (`SCARDCONTEXT`).
@@ -92,7 +97,7 @@ expect class Context {
      *
      * @param timeout Number of seconds to wait. To wait for a long time, use [LONG_TIMEOUT].
      */
-    suspend fun getStatusChange(
+    fun getStatusChange(
         timeout: Int,
         readers: List<ReaderState>,
     ): List<ReaderState>
@@ -124,6 +129,25 @@ fun Context.connect(
 ): Card = connect(reader, shareMode, setOf(preferredProtocol))
 
 /**
+ * Waits for status changes in the given list of readers.
+ * This method runs the status in a background job and can be cancelled with standard coroutine functionality.
+ *
+ * Equivalent to
+ * [SCardGetStatusChange](https://docs.microsoft.com/en-us/windows/win32/api/winscard/nf-winscard-scardgetstatuschangea).
+ *
+ * @param timeout Number of seconds to wait. To wait for a long time, use [LONG_TIMEOUT].
+ * @param dispatcher Coroutine dispatcher to use for the background job.
+ */
+suspend fun Context.getStatusChangeSuspend(
+    timeout: Int,
+    readers: List<ReaderState>,
+    dispatcher: CoroutineDispatcher = Dispatchers.IO,
+): List<ReaderState> =
+    cancellableGetStatusChange(dispatcher) { ctx ->
+        ctx.getStatusChange(timeout, readers)
+    }
+
+/**
  * Waits for status changes in a single reader.
  *
  * Equivalent to
@@ -131,10 +155,27 @@ fun Context.connect(
  *
  * @param timeout Number of seconds to wait. To wait for a long time, use [LONG_TIMEOUT].
  */
-suspend fun Context.getStatusChange(
+fun Context.getStatusChange(
     timeout: Int,
     reader: ReaderState,
 ) = getStatusChange(timeout, listOf(reader)).first()
+
+/**
+ * Waits for status changes in a single reader.
+ *
+ * Equivalent to
+ * [SCardGetStatusChange](https://docs.microsoft.com/en-us/windows/win32/api/winscard/nf-winscard-scardgetstatuschangea).
+ *
+ * @param timeout Number of seconds to wait. To wait for a long time, use [LONG_TIMEOUT].
+ * @param dispatcher Coroutine dispatcher to use for the background job.
+ */
+suspend fun Context.getStatusChangeSuspend(
+    timeout: Int,
+    reader: ReaderState,
+    dispatcher: CoroutineDispatcher = Dispatchers.IO,
+) = cancellableGetStatusChange(dispatcher) { ctx ->
+    ctx.getStatusChange(timeout, listOf(reader)).first()
+}
 
 /**
  * Gets the current state of the given readers, and returns immediately.
@@ -143,10 +184,7 @@ suspend fun Context.getStatusChange(
  *
  * @see [Context.getStatusChange]
  */
-fun Context.getStatus(readers: List<String>): List<ReaderState> =
-    runBlocking {
-        getStatusChange(0, readers.map { ReaderState(it) })
-    }
+fun Context.getStatus(readers: List<String>): List<ReaderState> = getStatusChange(0, readers.map { ReaderState(it) })
 
 /**
  * Gets the current state of a single reader, and returns immediately.
@@ -166,3 +204,37 @@ fun Context.getStatus(reader: String): ReaderState = getStatus(listOf(reader)).f
  */
 fun Context.getAllReaderStatus(groups: List<String>? = null): List<ReaderState> =
     listReaders(groups).takeUnless { it.isEmpty() }?.let(::getStatus).orEmpty()
+
+/**
+ * Runs a block with a cancellable GetStatusChange method as a cancellable coroutine.
+ */
+private suspend inline fun <T> Context.cancellableGetStatusChange(
+    dispatcher: CoroutineDispatcher,
+    crossinline block: suspend (ctx: Context) -> T,
+): T {
+    val ctx = this
+    return coroutineScope {
+        val eventJob =
+            async(dispatcher) {
+                try {
+                    block(ctx)
+                } catch (ex: PCSCError) {
+                    // when we got cancelled, raise cancel exception
+                    if (ex.error != PCSCErrorCode.E_CANCELLED) {
+                        throw CancellationException("GetStatusChange invocation cancelled")
+                    } else {
+                        throw ex
+                    }
+                }
+            }
+
+        try {
+            eventJob.await()
+        } catch (ex: CancellationException) {
+            // we got cancelled, cancel our job by calling PCSC cancel
+            ctx.cancel()
+            // rethrow exception to signal cancellation to caller
+            throw ex
+        }
+    }
+}

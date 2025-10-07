@@ -135,7 +135,7 @@ actual class Context private constructor(
     }
 
     // SCardGetStatusChange
-    actual suspend fun getStatusChange(
+    actual fun getStatusChange(
         timeout: Int,
         readers: List<ReaderState>,
     ): List<ReaderState> {
