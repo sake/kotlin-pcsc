@@ -9,20 +9,34 @@ which targets:
 This was developed to support the PC version of [Metrodroid][] (a public transit
 card reader).
 
-## Supported platforms
+This repository is a fork of [kotlin-pcsc-orig][] by micolous.
+It mainly updates the build system and provides artifacts via maven-central.
+There are also some minor changes in the API, but it should mostly work as a drop-in replacement.
 
-**Note:** Cross-compiling **Native** targets is not supported.
+## Supported target platforms
 
-Platform           | [PC/SC][] Implementation | [JNA][] (JRE) | [Native][]
------------------- | ------------------------ | ------------- | ----------
-Linux x86_64       | [pcsclite][]             | :o:           | :o:
-macOS 10.14 x86_64 | `PCSC.framework`         | :o:           | :o:
-Windows 10 x86_64  | [WinSCard.dll][winscard] | :o:           | :o:
+Platform            | [PC/SC][] Implementation
+------------------- |--------------------------
+JVM                 | see notes
+Linux x86_64        | [pcsclite][]
+Linux arm_64        | [pcsclite][]
+macOS 10.14+ x86_64 | `PCSC.framework`
+macOS 10.14+ arm_64 | `PCSC.framework`
+Windows 10+ x86_64  | [WinSCard.dll][winscard]
+
+**Notes:** 
+
+- Cross-compiling **Native** targets with cinterop is not supported.
+- The JVM target uses [JNA][], which has a broad [platform support](https://github.com/java-native-access/jna/tree/master/lib/native). 
+  Depending on the host system it loads either [WinSCard.dll][winscard], `PCSC.framework` or [pcsclite][].
 
 ## API
 
-[API documentation can be viewed online][api-docs], or built locally with:
-`./gradlew dokkaHtml`
+The [API documentation can be viewed online][api-docs], or built locally with:
+
+`./gradlew :dokkaGenerate`
+
+The generated API documentation can then be found in the [build directory](./build/dokka/html/index.html)
 
 This library _mostly_ follows the PC/SC API, but takes some liberties to make it
 easier to use in Kotlin, such as using object orientation, providing helper
@@ -36,7 +50,23 @@ The online version of the documentation can be updated with `./update_online_doc
 
 ## Build and test
 
-All targets, even native ones, require JDK 9 or later to be installed (for Gradle).
+All targets, even native ones, require JDK 17 or later to be installed (for Gradle).
+
+The complete distribution can be published to the local maven repository with the following command:
+
+* `./gradlew :publishToMavenLocal`
+
+For publishing to maven central, execute the following:
+
+* `./gradlew :publishToMavenCentral`
+
+The version and the group coordinates of the artifact can be overridden by setting the following gradle project properties:
+`./gradlew -Pversion=1.0.0 -Pgroup=com.example :publishToMavenLocal`
+
+Due to the way kotlin multiplatform packages are publishes to maven repositories, it is necessary to build all targets at once.
+Unfortunately not all crossplatform toolchains are available on all platforms.
+Especially the OSX target is problematic as it is only available on OSX.
+That means in order to build the library, OSX must be used.
 
 To run the tests, you need:
 
@@ -54,26 +84,38 @@ platform-specific JNI helpers.  You don't need any cross-compiling or special ma
 
 ### Native targets
 
-**Note:** Only `x86_64` targets are currently supported.
-
 #### Linux
 
-* Build dependencies: `libpcsclite1 libpcsclite-dev`
+* Build dependencies: none
 * Run-time dependencies: `libpcsclite1`
 
 ```sh
 ./gradlew :linuxX64MainKlibrary :linuxX64Test
 ```
 
+or
+
+```sh
+./gradlew :linuxArm64MainKlibrary :linuxArm64Test
+```
+
 #### macOS
 
-* Build dependencies: Xcode 11 or later
+* Build dependencies: Xcode in a version compatible with kotlin multiplatform
 
 ```sh
 ./gradlew :macosX64MainKlibrary :macosX64Test
 ```
 
+or
+
+```sh
+./gradlew :macosArm64MainKlibrary :macosArm64Test
+```
+
 #### Windows
+
+**Note:** Only `x86_64` target is currently supported.
 
 ```powershell
 .\gradlew :mingwX64MainKlibrary :mingwX64Test
@@ -147,11 +189,12 @@ level interface, and you'll be sending `ByteArray` to the ICC and getting `ByteA
 
 We don't even parse the APDUs for you...
 
-[api-docs]: https://micolous.github.io/kotlin-pcsc/index.html
+[api-docs]: https://sake.github.io/kotlin-pcsc/index.html
 [intarsys]: https://github.com/intarsys/smartcard-io
 [JNA]: https://github.com/java-native-access/jna
 [jnasmartcardio]: https://github.com/jnasmartcardio/jnasmartcardio
-[kotlin-pcsc]: https://github.com/micolous/kotlin-pcsc
+[kotlin-pcsc]: https://github.com/sake/kotlin-pcsc
+[kotlin-pcsc-orig]: https://github.com/micolous/kotlin-pcsc
 [Metrodroid]: https://github.com/metrodroid/metrodroid
 [multi]: https://kotlinlang.org/docs/reference/multiplatform.html
 [native]: https://kotlinlang.org/docs/reference/native-overview.html
