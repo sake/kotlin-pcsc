@@ -9,7 +9,7 @@ which targets:
 This was developed to support the PC version of [Metrodroid][] (a public transit
 card reader).
 
-This repository is a fork of [kotlin-pcsc-orig][] by micolous.
+This repository is a fork of [kotlin-pcsc][kotlin-pcsc-orig] by micolous.
 It mainly updates the build system and provides artifacts via maven-central.
 There are also some minor changes in the API, but it should mostly work as a drop-in replacement.
 
