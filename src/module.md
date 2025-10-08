@@ -2,7 +2,7 @@
 
 This is documentation for [kotlin-pcsc][], a Kotlin Multiplatform library for using the PC/SC API.
 
-[kotlin-pcsc]: https://github.com/micolous/kotlin-pcsc
+[kotlin-pcsc]: https://github.com/sake/kotlin-pcsc
 
 # Package au.id.micolous.kotlin.pcsc
 

@@ -15,6 +15,6 @@ From the root of the `kotlin-pcsc` repository:
 * macOS x86_64: `./gradlew :sample:runPcsc_sampleReleaseExecutableMacosX64`
 * Windows x86_64: `.\gradlew :sample:runPcsc_sampleReleaseExecutableMingwX64`
 
-[kotlin-pcsc]: https://github.com/micolous/kotlin-pcsc
+[kotlin-pcsc]: https://github.com/sake/kotlin-pcsc
 [Ludovic Rousseau]: https://ludovicrousseau.blogspot.com/
 [pcsc-sample]: https://ludovicrousseau.blogspot.com/2010/04/pcsc-sample-in-different-languages.html
