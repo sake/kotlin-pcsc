@@ -1,25 +1,18 @@
-import org.gradle.jvm.tasks.Jar
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 
 plugins {
     kotlin("multiplatform")
-}
-
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    commonMainImplementation(kotlin("stdlib-common"))
-    commonMainImplementation(rootProject)
+    id("com.gradleup.shadow") version ("9.2.2")
 }
 
 kotlin {
     linuxX64()
+    linuxArm64()
     macosX64()
+    macosArm64()
     mingwX64()
-    jvm("jna")
+    jvm()
 
     targets.filterIsInstance<KotlinNativeTarget>().forEach {
         it.binaries {
@@ -27,37 +20,16 @@ kotlin {
         }
     }
 
-    targets.filterIsInstance<KotlinJvmTarget>().forEach {
-        it.compilations["main"].apply {
-            dependencies {
-                implementation(kotlin("stdlib-jdk8"))
-            }
+    sourceSets {
+        commonMain.dependencies {
+            implementation(rootProject)
         }
-    }
-
-    sourceSets.all {
-        languageSettings.optIn("kotlin.ExperimentalUnsignedTypes")
     }
 }
 
-afterEvaluate {
-    val jnaFatJar by tasks.creating(Jar::class) {
-        dependsOn("jnaJar")
-        group = "jar"
-        manifest.attributes["Main-Class"] = "SampleKt"
-        val deps = configurations["jnaRuntimeClasspath"].filter {
-            it.name.endsWith(".jar") } +
-                project.tasks["jnaJar"].outputs.files
-        deps.forEach { from(zipTree(it)) }
-        exclude(
-            // Added by JDK9, and exists in multiple dependency JARs (which conflict).
-            // Fat executable JARs don't need modules support anyway.
-            "META-INF/versions/9/module-info.class",
-        )
+tasks.named<ShadowJar>("shadowJar") {
+    manifest {
+        attributes["Main-Class"] = "SampleKt"
     }
-
-    tasks.filterIsInstance<AbstractArchiveTask>().forEach {
-        it.isPreserveFileTimestamps = false
-        it.isReproducibleFileOrder = true
-    }
+    archiveFileName = "sample-bundle.jar"
 }

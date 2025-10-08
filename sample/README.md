@@ -10,9 +10,11 @@ The main source file is [Sample.kt](./src/commonMain/kotlin/Sample.kt).
 
 From the root of the `kotlin-pcsc` repository:
 
-* JNA: `./gradlew :sample:jnaFatJar; java -jar sample/build/libs/sample.jar`
+* JNA: `./gradlew :sample:shadowJar; java -jar sample/build/libs/sample-bundle.jar`
 * Linux x86_64: `./gradlew :sample:runPcsc_sampleReleaseExecutableLinuxX64`
+* Linux arm_64: `./gradlew :sample:runPcsc_sampleReleaseExecutableLinuxArm64`
 * macOS x86_64: `./gradlew :sample:runPcsc_sampleReleaseExecutableMacosX64`
+* macOS arm_64: `./gradlew :sample:runPcsc_sampleReleaseExecutableMacosArm64`
 * Windows x86_64: `.\gradlew :sample:runPcsc_sampleReleaseExecutableMingwX64`
 
 [kotlin-pcsc]: https://github.com/sake/kotlin-pcsc
