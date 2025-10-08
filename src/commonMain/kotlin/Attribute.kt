@@ -140,6 +140,13 @@ class MechanicalCharacteristics internal constructor(
     /** Reader supports contactless communication */
     val contactless = hasBits(0x08)
 
+    override fun toString(): String =
+        "MechanicalCharacteristics(" +
+            "cardSwallowing=$cardSwallowing, " +
+            "cardEjection=$cardEjection, " +
+            "cardCapture=$cardCapture, " +
+            "contactless=$contactless)"
+
     companion object {
         private const val LENGTH = 4
 

@@ -89,4 +89,19 @@ class CardStatus internal constructor(
      * Note: Windows may have many names for the same reader -- this simply returns the first.
      */
     val readerName = readerNames.firstOrNull()
+
+    override fun toString(): String {
+        val atrStr = atr.toHexString()
+        return "CardStatus(" +
+            "readerNames=$readerNames, " +
+            "unknown=$unknown, " +
+            "absent=$absent, " +
+            "present=$present, " +
+            "swallowed=$swallowed, " +
+            "powered=$powered, " +
+            "negotiable=$negotiable, " +
+            "specific=$specific, " +
+            "protocol=$protocol, " +
+            "atr=$atrStr)"
+    }
 }
