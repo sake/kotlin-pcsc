@@ -13,6 +13,31 @@ This repository is a fork of [kotlin-pcsc-orig][] by micolous.
 It mainly updates the build system and provides artifacts via maven-central.
 There are also some minor changes in the API, but it should mostly work as a drop-in replacement.
 
+## Quick Start
+
+The library is published at maven central and can be added like this:
+
+```kotlin
+kotlin {
+    // add all targets that should be supported
+    linuxX64()
+    linuxArm64()
+    macosX64()
+    macosArm64()
+    mingwX64()
+    jvm()
+
+    sourceSets {
+        commonMain.dependencies {
+            implementation("org.electrologic.pcsc:kotlin-pcsc:1.0.0")
+        }
+    }
+}
+```
+
+The libraries entry point is the `Context` class.
+For an example refer to the [sample project](./sample/).
+
 ## Supported target platforms
 
 Platform            | [PC/SC][] Implementation
