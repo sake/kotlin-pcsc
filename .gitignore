@@ -24,3 +24,6 @@ xcuserdata/
 .~lock*
 
 *.hprof
+
+# for gh-pages updates
+/gh-pages/
