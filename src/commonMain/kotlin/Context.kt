@@ -220,7 +220,7 @@ private suspend inline fun <T> Context.cancellableGetStatusChange(
                     block(ctx)
                 } catch (ex: PCSCError) {
                     // when we got cancelled, raise cancel exception
-                    if (ex.error != PCSCErrorCode.E_CANCELLED) {
+                    if (ex.error == PCSCErrorCode.E_CANCELLED) {
                         throw CancellationException("GetStatusChange invocation cancelled")
                     } else {
                         throw ex
