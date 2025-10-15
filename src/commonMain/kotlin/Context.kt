@@ -143,8 +143,8 @@ suspend fun Context.getStatusChangeSuspend(
     readers: List<ReaderState>,
     dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ): List<ReaderState> =
-    cancellableGetStatusChange(dispatcher) { ctx ->
-        ctx.getStatusChange(timeout, readers)
+    cancellablePcscCall(dispatcher) {
+        getStatusChange(timeout, readers)
     }
 
 /**
@@ -173,9 +173,7 @@ suspend fun Context.getStatusChangeSuspend(
     timeout: Int,
     reader: ReaderState,
     dispatcher: CoroutineDispatcher = Dispatchers.IO,
-) = cancellableGetStatusChange(dispatcher) { ctx ->
-    ctx.getStatusChange(timeout, listOf(reader)).first()
-}
+) = getStatusChangeSuspend(timeout, listOf(reader), dispatcher).first()
 
 /**
  * Gets the current state of the given readers, and returns immediately.
@@ -208,20 +206,20 @@ fun Context.getAllReaderStatus(groups: List<String>? = null): List<ReaderState> 
 /**
  * Runs a block with a cancellable GetStatusChange method as a cancellable coroutine.
  */
-private suspend inline fun <T> Context.cancellableGetStatusChange(
+private suspend inline fun <T> Context.cancellablePcscCall(
     dispatcher: CoroutineDispatcher,
-    crossinline block: suspend (ctx: Context) -> T,
+    crossinline block: suspend () -> T,
 ): T {
     val ctx = this
     return coroutineScope {
         val eventJob =
             async(dispatcher) {
                 try {
-                    block(ctx)
+                    block()
                 } catch (ex: PCSCError) {
                     // when we got cancelled, raise cancel exception
                     if (ex.error == PCSCErrorCode.E_CANCELLED) {
-                        throw CancellationException("GetStatusChange invocation cancelled")
+                        throw CancellationException("GetStatusChange invocation cancelled", ex)
                     } else {
                         throw ex
                     }
