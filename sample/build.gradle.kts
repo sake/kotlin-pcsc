@@ -1,9 +1,10 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+@file:OptIn(ExperimentalKotlinGradlePluginApi::class)
+
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
     kotlin("multiplatform")
-    id("com.gradleup.shadow") version ("9.2.2")
 }
 
 kotlin {
@@ -12,7 +13,11 @@ kotlin {
     macosX64()
     macosArm64()
     mingwX64()
-    jvm()
+    jvm {
+        mainRun {
+            mainClass = "SampleKt"
+        }
+    }
 
     targets.filterIsInstance<KotlinNativeTarget>().forEach {
         it.binaries {
@@ -25,11 +30,4 @@ kotlin {
             implementation(rootProject)
         }
     }
-}
-
-tasks.named<ShadowJar>("shadowJar") {
-    manifest {
-        attributes["Main-Class"] = "SampleKt"
-    }
-    archiveFileName = "sample-bundle.jar"
 }
