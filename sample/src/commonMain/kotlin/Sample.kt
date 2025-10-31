@@ -17,22 +17,52 @@
  * limitations under the License.
  */
 @file:JvmName("SampleKt")
-import au.id.micolous.kotlin.pcsc.*
+
+import au.id.micolous.kotlin.pcsc.Context
+import au.id.micolous.kotlin.pcsc.PCSCError
+import au.id.micolous.kotlin.pcsc.Protocol
+import au.id.micolous.kotlin.pcsc.ReaderState
+import au.id.micolous.kotlin.pcsc.ShareMode
+import au.id.micolous.kotlin.pcsc.getIfdSerial
+import au.id.micolous.kotlin.pcsc.getIfdType
+import au.id.micolous.kotlin.pcsc.getIfdVersion
+import au.id.micolous.kotlin.pcsc.getMechanicalCharacteristics
+import au.id.micolous.kotlin.pcsc.getStatusChange
+import au.id.micolous.kotlin.pcsc.getVendorName
 import kotlin.jvm.JvmName
 
 /** Converts signed [Int] values into a [ByteArray] */
-fun byteArrayOf(vararg i: Int) : ByteArray = i.map(Int::toByte).toByteArray()
+fun byteArrayOf(vararg i: Int): ByteArray = i.map(Int::toByte).toByteArray()
 
 /** Converts a [ByteArray] to a space-separated hex string for display */
-fun ByteArray.toHex(): String = map {
-    it.toUByte().toString(16).padStart(2, '0').padEnd(3, ' ')
-}.fold(StringBuilder(), StringBuilder::append).dropLast(1).toString()
+fun ByteArray.toHex(): String =
+    map {
+        it
+            .toUByte()
+            .toString(16)
+            .padStart(2, '0')
+            .padEnd(3, ' ')
+    }.fold(StringBuilder(), StringBuilder::append).dropLast(1).toString()
 
 /** APDU: SELECT `A00000006203010C0601` */
-val cmd1 = byteArrayOf(
-    0x00, 0xA4, 0x04, 0x00, 0x0A, 0xA0, 0x00, 0x00, 0x00, 0x62, 0x03, 0x01,
-    0x0C, 0x06, 0x01
-)
+val cmd1 =
+    byteArrayOf(
+        0x00,
+        0xA4,
+        0x04,
+        0x00,
+        0x0A,
+        0xA0,
+        0x00,
+        0x00,
+        0x00,
+        0x62,
+        0x03,
+        0x01,
+        0x0C,
+        0x06,
+        0x01,
+    )
 
 /** APDU: CLA=00, INS=00, P1=00, P2=00 */
 val cmd2 = byteArrayOf(0x00, 0x00, 0x00, 0x00)
@@ -70,6 +100,17 @@ fun main() {
         val reader = readers[0]
         println("Connecting to $reader (SCardConnect)...")
 
+        println("Requesting status change (SCardStatusChange)...")
+        val statusChange1 = context.getStatusChange(0, ReaderState(reader))
+        println("StatusChange: $statusChange1")
+        if (statusChange1.eventState.empty) {
+            println("Wait for status change: please insert a card")
+            val statusChangeRequest = statusChange1.copy(currentState = statusChange1.eventState)
+            val statusChange2 = context.getStatusChange(10_000, statusChangeRequest)
+            println("StatusChange: $statusChange2")
+        }
+        println()
+
         val card = context.connect(reader, ShareMode.Shared, setOf(Protocol.T0, Protocol.T1))
 
         when (card.protocol) {
@@ -83,8 +124,10 @@ fun main() {
         println("Status: $status")
         println()
 
-        println("Device: (vendor=${card.getVendorName()}) (type=${card.getIfdType()}) " +
-                "(serial=${card.getIfdSerial()}) (version=${card.getIfdVersion()})")
+        println(
+            "Device: (vendor=${card.getVendorName()}) (type=${card.getIfdType()}) " +
+                "(serial=${card.getIfdSerial()}) (version=${card.getIfdVersion()})",
+        )
         println("Mechanical characteristics: ${card.getMechanicalCharacteristics()}")
         println()
 
