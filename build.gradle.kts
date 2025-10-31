@@ -23,12 +23,17 @@ private fun KotlinNativeTarget.withCinterop(withIncludes: Boolean = false) {
     }
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_9
+    targetCompatibility = JavaVersion.VERSION_1_9
+}
+
 kotlin {
     applyDefaultHierarchyTemplate()
 
     jvm {
         this.compilerOptions {
-            jvmTarget = JvmTarget.JVM_1_8
+            jvmTarget = JvmTarget.JVM_9
         }
     }
 
