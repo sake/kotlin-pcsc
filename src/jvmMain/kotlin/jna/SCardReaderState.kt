@@ -111,6 +111,7 @@ private fun State.toDword() =
             SCARD_STATE_IGNORE
         } else {
             orLongs(
+                (upperBits and 0xFFFFFFFF_FFFF_0000u).toLong(),
                 if (changed) SCARD_STATE_CHANGED else 0L,
                 if (unknown) SCARD_STATE_UNKNOWN else 0L,
                 if (unavailable) SCARD_STATE_UNAVAILABLE else 0L,
@@ -128,6 +129,7 @@ private fun State.toDword() =
 private fun Dword.toState(): State {
     val v = toLong()
     return State(
+        upperBits = this.toLong().toULong() and 0xFFFFFFFF_FFFF_0000u,
         ignore = v.hasBits(SCARD_STATE_IGNORE),
         changed = v.hasBits(SCARD_STATE_CHANGED),
         unknown = v.hasBits(SCARD_STATE_UNKNOWN),

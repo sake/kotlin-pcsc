@@ -43,7 +43,8 @@ private fun State.toDword() =
         SCARD_STATE_IGNORE.convert()
     } else {
         orDWORD(
-            DWORD_ZERO,
+            // make sure lower status bits are 0 from the start
+            (upperBits and 0xFFFFFFFF_FFFF_0000u).convert<DWORD>(),
             if (changed) SCARD_STATE_CHANGED.convert() else DWORD_ZERO,
             if (unknown) SCARD_STATE_UNKNOWN.convert() else DWORD_ZERO,
             if (unavailable) SCARD_STATE_UNAVAILABLE.convert() else DWORD_ZERO,
@@ -59,6 +60,8 @@ private fun State.toDword() =
 
 private fun DWORD.toState(): State =
     State(
+        // set upper bits and exclude lower status bits
+        upperBits = this.toULong() and 0xFFFFFFFF_FFFF_0000u,
         ignore = hasBits(SCARD_STATE_IGNORE.convert()),
         changed = hasBits(SCARD_STATE_CHANGED.convert()),
         unknown = hasBits(SCARD_STATE_UNKNOWN.convert()),
