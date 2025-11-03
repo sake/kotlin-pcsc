@@ -95,7 +95,7 @@ expect class Context {
      * Equivalent to
      * [SCardGetStatusChange](https://docs.microsoft.com/en-us/windows/win32/api/winscard/nf-winscard-scardgetstatuschangea).
      *
-     * @param timeout Number of seconds to wait. To wait for a long time, use [LONG_TIMEOUT].
+     * @param timeout Number of milliseconds to wait. To wait for a long time, use [LONG_TIMEOUT].
      */
     fun getStatusChange(
         timeout: Int,
@@ -135,7 +135,7 @@ fun Context.connect(
  * Equivalent to
  * [SCardGetStatusChange](https://docs.microsoft.com/en-us/windows/win32/api/winscard/nf-winscard-scardgetstatuschangea).
  *
- * @param timeout Number of seconds to wait. To wait for a long time, use [LONG_TIMEOUT].
+ * @param timeout Number of milliseconds to wait. To wait for a long time, use [LONG_TIMEOUT].
  * @param dispatcher Coroutine dispatcher to use for the background job.
  */
 suspend fun Context.getStatusChangeSuspend(
@@ -153,7 +153,7 @@ suspend fun Context.getStatusChangeSuspend(
  * Equivalent to
  * [SCardGetStatusChange](https://docs.microsoft.com/en-us/windows/win32/api/winscard/nf-winscard-scardgetstatuschangea).
  *
- * @param timeout Number of seconds to wait. To wait for a long time, use [LONG_TIMEOUT].
+ * @param timeout Number of milliseconds to wait. To wait for a long time, use [LONG_TIMEOUT].
  */
 fun Context.getStatusChange(
     timeout: Int,
@@ -166,7 +166,7 @@ fun Context.getStatusChange(
  * Equivalent to
  * [SCardGetStatusChange](https://docs.microsoft.com/en-us/windows/win32/api/winscard/nf-winscard-scardgetstatuschangea).
  *
- * @param timeout Number of seconds to wait. To wait for a long time, use [LONG_TIMEOUT].
+ * @param timeout Number of milliseconds to wait. To wait for a long time, use [LONG_TIMEOUT].
  * @param dispatcher Coroutine dispatcher to use for the background job.
  */
 suspend fun Context.getStatusChangeSuspend(

@@ -37,6 +37,11 @@ data class State(
     val inUse: Boolean = false,
     val mute: Boolean = false,
     val unpowered: Boolean = false,
+    /**
+     * Upper bits of the state value.
+     * These can be used by the PCSC implementation to transport additional information such as an event counter.
+     */
+    val upperBits: ULong = 0u,
 ) {
     val unaware =
         !(
