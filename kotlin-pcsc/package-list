@@ -71,6 +71,7 @@ $dokka.location:au.id.micolous.kotlin.pcsc/CardStatus/readerName/#/PointingToDec
 $dokka.location:au.id.micolous.kotlin.pcsc/CardStatus/readerNames/#/PointingToDeclaration/kotlin-pcsc/au.id.micolous.kotlin.pcsc/-card-status/reader-names.html
 $dokka.location:au.id.micolous.kotlin.pcsc/CardStatus/specific/#/PointingToDeclaration/kotlin-pcsc/au.id.micolous.kotlin.pcsc/-card-status/specific.html
 $dokka.location:au.id.micolous.kotlin.pcsc/CardStatus/swallowed/#/PointingToDeclaration/kotlin-pcsc/au.id.micolous.kotlin.pcsc/-card-status/swallowed.html
+$dokka.location:au.id.micolous.kotlin.pcsc/CardStatus/toString/#/PointingToDeclaration/kotlin-pcsc/au.id.micolous.kotlin.pcsc/-card-status/to-string.html
 $dokka.location:au.id.micolous.kotlin.pcsc/CardStatus/unknown/#/PointingToDeclaration/kotlin-pcsc/au.id.micolous.kotlin.pcsc/-card-status/unknown.html
 $dokka.location:au.id.micolous.kotlin.pcsc/Context.Companion///PointingToDeclaration/kotlin-pcsc/au.id.micolous.kotlin.pcsc/-context/-companion/index.html
 $dokka.location:au.id.micolous.kotlin.pcsc/Context.Companion/establish/#au.id.micolous.kotlin.pcsc.Scope/PointingToDeclaration/kotlin-pcsc/au.id.micolous.kotlin.pcsc/-context/-companion/establish.html
@@ -102,6 +103,7 @@ $dokka.location:au.id.micolous.kotlin.pcsc/MechanicalCharacteristics/cardCapture
 $dokka.location:au.id.micolous.kotlin.pcsc/MechanicalCharacteristics/cardEjection/#/PointingToDeclaration/kotlin-pcsc/au.id.micolous.kotlin.pcsc/-mechanical-characteristics/card-ejection.html
 $dokka.location:au.id.micolous.kotlin.pcsc/MechanicalCharacteristics/cardSwallowing/#/PointingToDeclaration/kotlin-pcsc/au.id.micolous.kotlin.pcsc/-mechanical-characteristics/card-swallowing.html
 $dokka.location:au.id.micolous.kotlin.pcsc/MechanicalCharacteristics/contactless/#/PointingToDeclaration/kotlin-pcsc/au.id.micolous.kotlin.pcsc/-mechanical-characteristics/contactless.html
+$dokka.location:au.id.micolous.kotlin.pcsc/MechanicalCharacteristics/toString/#/PointingToDeclaration/kotlin-pcsc/au.id.micolous.kotlin.pcsc/-mechanical-characteristics/to-string.html
 $dokka.location:au.id.micolous.kotlin.pcsc/PCSCError.Companion///PointingToDeclaration/kotlin-pcsc/au.id.micolous.kotlin.pcsc/-p-c-s-c-error/-companion/index.html
 $dokka.location:au.id.micolous.kotlin.pcsc/PCSCError///PointingToDeclaration/kotlin-pcsc/au.id.micolous.kotlin.pcsc/-p-c-s-c-error/index.html
 $dokka.location:au.id.micolous.kotlin.pcsc/PCSCError/code/#/PointingToDeclaration/kotlin-pcsc/au.id.micolous.kotlin.pcsc/-p-c-s-c-error/code.html
@@ -217,7 +219,7 @@ $dokka.location:au.id.micolous.kotlin.pcsc/ShareMode/values/#/PointingToDeclarat
 $dokka.location:au.id.micolous.kotlin.pcsc/State.Companion///PointingToDeclaration/kotlin-pcsc/au.id.micolous.kotlin.pcsc/-state/-companion/index.html
 $dokka.location:au.id.micolous.kotlin.pcsc/State.Companion/UNAWARE/#/PointingToDeclaration/kotlin-pcsc/au.id.micolous.kotlin.pcsc/-state/-companion/-u-n-a-w-a-r-e.html
 $dokka.location:au.id.micolous.kotlin.pcsc/State///PointingToDeclaration/kotlin-pcsc/au.id.micolous.kotlin.pcsc/-state/index.html
-$dokka.location:au.id.micolous.kotlin.pcsc/State/State/#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean/PointingToDeclaration/kotlin-pcsc/au.id.micolous.kotlin.pcsc/-state/-state.html
+$dokka.location:au.id.micolous.kotlin.pcsc/State/State/#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.ULong/PointingToDeclaration/kotlin-pcsc/au.id.micolous.kotlin.pcsc/-state/-state.html
 $dokka.location:au.id.micolous.kotlin.pcsc/State/atrMatch/#/PointingToDeclaration/kotlin-pcsc/au.id.micolous.kotlin.pcsc/-state/atr-match.html
 $dokka.location:au.id.micolous.kotlin.pcsc/State/changed/#/PointingToDeclaration/kotlin-pcsc/au.id.micolous.kotlin.pcsc/-state/changed.html
 $dokka.location:au.id.micolous.kotlin.pcsc/State/empty/#/PointingToDeclaration/kotlin-pcsc/au.id.micolous.kotlin.pcsc/-state/empty.html
@@ -230,6 +232,7 @@ $dokka.location:au.id.micolous.kotlin.pcsc/State/unavailable/#/PointingToDeclara
 $dokka.location:au.id.micolous.kotlin.pcsc/State/unaware/#/PointingToDeclaration/kotlin-pcsc/au.id.micolous.kotlin.pcsc/-state/unaware.html
 $dokka.location:au.id.micolous.kotlin.pcsc/State/unknown/#/PointingToDeclaration/kotlin-pcsc/au.id.micolous.kotlin.pcsc/-state/unknown.html
 $dokka.location:au.id.micolous.kotlin.pcsc/State/unpowered/#/PointingToDeclaration/kotlin-pcsc/au.id.micolous.kotlin.pcsc/-state/unpowered.html
+$dokka.location:au.id.micolous.kotlin.pcsc/State/upperBits/#/PointingToDeclaration/kotlin-pcsc/au.id.micolous.kotlin.pcsc/-state/upper-bits.html
 $dokka.location:au.id.micolous.kotlin.pcsc/Version.Companion///PointingToDeclaration/kotlin-pcsc/au.id.micolous.kotlin.pcsc/-version/-companion/index.html
 $dokka.location:au.id.micolous.kotlin.pcsc/Version///PointingToDeclaration/kotlin-pcsc/au.id.micolous.kotlin.pcsc/-version/index.html
 $dokka.location:au.id.micolous.kotlin.pcsc/Version/build/#/PointingToDeclaration/kotlin-pcsc/au.id.micolous.kotlin.pcsc/-version/build.html
