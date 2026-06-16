@@ -61,7 +61,7 @@ private fun State.toDword() =
 private fun DWORD.toState(): State =
     State(
         // set upper bits and exclude lower status bits
-        upperBits = this.toULong() and 0xFFFFFFFF_FFFF_0000u,
+        upperBits = this and 0xFFFFFFFF_FFFF_0000u,
         ignore = hasBits(SCARD_STATE_IGNORE.convert()),
         changed = hasBits(SCARD_STATE_CHANGED.convert()),
         unknown = hasBits(SCARD_STATE_UNKNOWN.convert()),
