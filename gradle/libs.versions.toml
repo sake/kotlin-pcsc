@@ -1,7 +1,7 @@
 [versions]
-kotlin = "2.2.21"
 dokka = "2.0.0"
 kx-co = "1.10.2"
+kotlin = "2.4.0"
 
 jna = "5.18.1"
 
