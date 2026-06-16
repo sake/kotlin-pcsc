@@ -88,7 +88,7 @@ For publishing to maven central, execute the following:
 The version and the group coordinates of the artifact can be overridden by setting the following gradle project properties:
 `./gradlew -Pversion=1.0.0 -Pgroup=com.example :publishToMavenLocal`
 
-Due to the way kotlin multiplatform packages are publishes to maven repositories, it is necessary to build all targets at once.
+Due to the way kotlin multiplatform packages are published to maven repositories, it is necessary to build all targets at once.
 Unfortunately not all crossplatform toolchains are available on all platforms.
 Especially the OSX target is problematic as it is only available on OSX.
 That means in order to build the library, OSX must be used.
