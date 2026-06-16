@@ -64,7 +64,7 @@ kotlin {
             implementation(libs.kotlin.coroutines.core)
         }
         commonTest.dependencies {
-            implementation(kotlin("test"))
+            implementation(libs.kotlin.test)
         }
 
         jvmMain.dependencies {
