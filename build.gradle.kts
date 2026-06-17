@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
@@ -83,9 +82,6 @@ kotlin {
         // suppress warnings for actual object implementations
         // https://youtrack.jetbrains.com/issue/KT-61573
         freeCompilerArgs.add("-Xexpect-actual-classes")
-
-        apiVersion = KotlinVersion.KOTLIN_2_2
-        languageVersion = KotlinVersion.KOTLIN_2_2
     }
 }
 
